@@ -6,6 +6,7 @@ class Easy2Map {
     const plugin_name = 'Easy2Map';
     const min_php_version = '5.0';
     const min_wp_version = '3.0';
+    const e2m_version = '1.1.6';
 
     // Used to uniquely identify this plugin's menu page in the WP manager
     const admin_menu_slug = 'easy2map';
@@ -39,6 +40,8 @@ class Easy2Map {
         wp_enqueue_script('jquery'); // make sure jQuery is loaded!
         wp_enqueue_script('jquery-ui-draggable');
         wp_enqueue_script('jquery-ui-droppable');
+
+        remove_action('admin_init', 'wp_auth_check_load');
 
         //if (self::_is_searchable_page()) {
         //$src = plugins_url('css/easy2map.css', dirname(__FILE__));
@@ -80,6 +83,8 @@ class Easy2Map {
             `CSSValues` text,
             `MapHTML` text,
             `IsActive` smallint(6),
+            `CSSValuesList` text,
+            `CSSValuesHeading` text,
             PRIMARY KEY (`ID`),
             UNIQUE KEY `ID_UNIQUE` (`ID`)
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1";
@@ -88,7 +93,7 @@ class Easy2Map {
                 echo sprintf($error, __("Could not create easy2map maps table.", 'easy2map'));
                 return;
             }
-        }
+        } 
 
         $result = $wpdb->get_var("show tables like '$map_points_table'");
 
@@ -172,6 +177,7 @@ class Easy2Map {
             `Active` smallint(6) DEFAULT NULL,
             `CSSValuesList` text,
             `CSSValuesHeading` text,
+            `Version` varchar(128) DEFAULT NULL,
             PRIMARY KEY (`ID`),
             UNIQUE KEY `ID_UNIQUE` (`ID`)
           ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1";
@@ -181,245 +187,263 @@ class Easy2Map {
                 return;
             }
 
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (94,'Map Style 1','',1,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,NULL);");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (95,'Map Style 2','',2,'<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div id=\"divMap\" style=\"\"></div>',0,1,NULL,NULL);");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (96,'Map Style 4','',4,'<settings border-style=\"double\" border-width=\"4px\" border-color=\"#828282\" border-radius=\"4px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div id=\"divMap\" style=\"\"></div>',0,1,NULL,NULL);");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (97,'Map Style 3','',3,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"600px\" height=\"400px\" margin-bottom=\"0px\" />','<div align=\"center\" style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\" style=\"position:relative;\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table><img style=\"width:600px;\" id=\"easy2mapIimgShadow\" src=\"[siteurl]images/map_templates/easy2map_map-shadow_bottom_1.png\"/></div>',1,1,NULL,NULL);");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (98,'Map Style 5 (includes list of markers)','',5,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:4px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (99,'Map Style 6 (includes list of markers)',NULL,6,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:4px;margin-left:5px;margin-top:5px;position:relative;\"></div></td><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (100,'Map Style 7 (includes list of markers)',NULL,7,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (101,'Map Style 9 (includes map heading)',NULL,9,'<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"0\" cellspacing=\"0\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"\"></div><div id=\"divMap\" style=\"top:0px;left:0px;min-width:10px;margin:0px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#FFFFFF\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#525252\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" />');");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (102,'Map Style 8 (includes list of markers)',NULL,8,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />','');");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (103,'Map Style 10 (includes map heading)',NULL,10,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"margin-left:3px;margin-right:3px;margin-top:3px;\"></div><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,'<settings color=\"#000000\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" border-color=\"#EBEBEB\" border-style=\"solid\" border-width=\"1px\" border-radius=\"1px\" />');");
-            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (104,'Map Style 11 (includes map heading)',NULL,11,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;position:relative\"><div id=\"divMapHeading\" style=\"z-index:999;position:absolute;top:0px;right:0px;min-width:10px;\"></div><div id=\"divMap\" style=\"background-color:#EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#000000\" width=\"200px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"15px\" text-align=\"center\" border-radius=\"0px\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" margin-right=\"-8px\" margin-top=\"-8px\" />');");
-            
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (94,'Map Style 1','',1,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (95,'Map Style 2','',2,'<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div id=\"divMap\" style=\"\"></div>',0,1,NULL,NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (96,'Map Style 4','',4,'<settings border-style=\"double\" border-width=\"4px\" border-color=\"#828282\" border-radius=\"4px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div id=\"divMap\" style=\"\"></div>',0,1,NULL,NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (97,'Map Style 3','',3,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"600px\" height=\"400px\" margin-bottom=\"0px\" />','<div align=\"center\" style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\" style=\"position:relative;\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table><img style=\"width:600px;\" id=\"easy2mapIimgShadow\" src=\"[siteurl]images/map_templates/easy2map_map-shadow_bottom_1.png\"/></div>',1,1,NULL,NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (98,'Map Style 5 (includes list of markers)','',5,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:4px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (99,'Map Style 6 (includes list of markers)',NULL,6,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:4px;margin-left:5px;margin-top:5px;position:relative;\"></div></td><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (100,'Map Style 7 (includes list of markers)',NULL,7,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (101,'Map Style 9 (includes map heading)',NULL,9,'<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"0\" cellspacing=\"0\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"\"></div><div id=\"divMap\" style=\"top:0px;left:0px;min-width:10px;margin:0px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#FFFFFF\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#525252\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" />','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (102,'Map Style 8 (includes list of markers)',NULL,8,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />','','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (103,'Map Style 10 (includes map heading)',NULL,10,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"margin-left:3px;margin-right:3px;margin-top:3px;\"></div><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,'<settings color=\"#000000\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" border-color=\"#EBEBEB\" border-style=\"solid\" border-width=\"1px\" border-radius=\"1px\" />','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (104,'Map Style 11 (includes map heading)',NULL,11,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;position:relative\"><div id=\"divMapHeading\" style=\"z-index:999;position:absolute;top:0px;right:0px;min-width:10px;\"></div><div id=\"divMap\" style=\"background-color:#EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#000000\" width=\"200px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"15px\" text-align=\"center\" border-radius=\"0px\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" margin-right=\"-8px\" margin-top=\"-8px\" />','" . self::e2m_version . "');");
         } else {
 
-            //check to see if the new columns (for version 1.2.1) have been added
             $arrFound = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
+            WHERE TABLE_NAME = '$map_templates_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'Version';");
+
+            //add Version table column
+            if (count($arrFound) === 0) {
+                $wpdb->query("ALTER TABLE $map_templates_table ADD Version varchar(128) NULL;");
+            }
+
+            $continue = true;
+
+            $arrVersion = $wpdb->get_results("SELECT IFNULL(Version,'0') AS Version FROM $map_templates_table LIMIT 1;");
+            foreach ($arrVersion as $version) {
+                if (strcasecmp($version->Version, self::e2m_version) === 0) {
+                    $continue = false;
+                }
+            }
+
+            if ($continue === true) {
+
+                //check to see if the new columns (for version 1.2.1) have been added
+                $arrFound1 = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
             WHERE TABLE_NAME = '$map_templates_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesList';");
 
-            //add CSSValuesList table column
-            if (count($arrFound) === 0) {
-                $wpdb->query("ALTER TABLE $map_templates_table ADD CSSValuesList TEXT NULL;");
-            }
-            
-            //check to see if the new columns (for version 1.2.1) have been added
-            $arrFound = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
+                //add CSSValuesList table column
+                if (count($arrFound1) === 0) {
+                    $wpdb->query("ALTER TABLE $map_templates_table ADD CSSValuesList TEXT NULL;");
+                }
+
+                //check to see if the new columns (for version 1.2.1) have been added
+                $arrFound2 = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
             WHERE TABLE_NAME = '$map_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesList';");
 
-            //add CSSValuesList table column
-            if (count($arrFound) === 0) {
-                $wpdb->query("ALTER TABLE $map_table ADD CSSValuesList TEXT NULL;");
-            }
+                //add CSSValuesList table column
+                if (count($arrFound2) === 0) {
+                    $wpdb->query("ALTER TABLE $map_table ADD CSSValuesList TEXT NULL;");
+                }
 
-            $arrFound = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
+                $arrFound3 = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
             WHERE TABLE_NAME = '$map_templates_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesHeading';");
 
-            //add CSSValuesHeading table column
-            if (count($arrFound) === 0) {
-                $wpdb->query("ALTER TABLE $map_templates_table ADD CSSValuesHeading TEXT NULL;");
-                
-            }
-            
-            $arrFound = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
+                //add CSSValuesHeading table column
+                if (count($arrFound3) === 0) {
+                    $wpdb->query("ALTER TABLE $map_templates_table ADD CSSValuesHeading TEXT NULL;");
+                }
+
+                $arrFound4 = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
             WHERE TABLE_NAME = '$map_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesHeading';");
 
-            //add CSSValuesHeading table column
-            if (count($arrFound) === 0) {
-                $wpdb->query("ALTER TABLE $map_table ADD CSSValuesHeading TEXT NULL;");
-                
-            }
-
-            //does template 94 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 94");
-            if (count($arrFound) === 0) {
-
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (94,'Map Style 1','',1,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,NULL);")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table3.", 'easy2map'));
-                    return;
+                //add CSSValuesHeading table column
+                if (count($arrFound4) === 0) {
+                    $wpdb->query("ALTER TABLE $map_table ADD CSSValuesHeading TEXT NULL;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-               SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
-               ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>' 
-               WHERE ID = 94;");
-            }
+                //does template 94 exist?
+                $arrFound5 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 94");
+                if (count($arrFound5) === 0) {
 
-            //does template 95 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 95");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (94,'Map Style 1','',1,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,NULL);")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table3.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (95,'Map Style 2','',2,'<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div id=\"divMap\" style=\"\"></div>',0,1,NULL,NULL);")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table4.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                   SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
+                   ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>' 
+                   WHERE ID = 94;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-               SET CSSValues = '<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />'
-               ,TemplateHTML = '<div id=\"divMap\" style=\"\"></div>' 
-               WHERE ID = 95;");
-            }
+                //does template 95 exist?
+                $arrFound6 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 95");
+                if (count($arrFound6) === 0) {
 
-            //does template 96 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 96");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (95,'Map Style 2','',2,'<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div id=\"divMap\" style=\"\"></div>',0,1,NULL,NULL);")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table4.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (96,'Map Style 4','',4,'<settings border-style=\"double\" border-width=\"4px\" border-color=\"#828282\" border-radius=\"4px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div id=\"divMap\" style=\"\"></div>',0,1,NULL,NULL);")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table5.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                   SET CSSValues = '<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />'
+                   ,TemplateHTML = '<div id=\"divMap\" style=\"\"></div>' 
+                   WHERE ID = 95;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-               SET CSSValues = '<settings border-style=\"double\" border-width=\"4px\" border-color=\"#828282\" border-radius=\"4px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />'
-               ,TemplateHTML = '<div id=\"divMap\" style=\"\"></div>' 
-               WHERE ID = 96;");
-            }
+                //does template 96 exist?
+                $arrFound7 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 96");
+                if (count($arrFound7) === 0) {
 
-            //does template 97 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 97");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (96,'Map Style 4','',4,'<settings border-style=\"double\" border-width=\"4px\" border-color=\"#828282\" border-radius=\"4px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div id=\"divMap\" style=\"\"></div>',0,1,NULL,NULL);")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table5.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (97,'Map Style 3','',3,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"600px\" height=\"400px\" margin-bottom=\"0px\" />','<div align=\"center\" style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\" style=\"position:relative;\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table><img style=\"width:600px;\" id=\"easy2mapIimgShadow\" src=\"[siteurl]images/map_templates/easy2map_map-shadow_bottom_1.png\"/></div>',1,1,NULL,NULL);")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table6.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                   SET CSSValues = '<settings border-style=\"double\" border-width=\"4px\" border-color=\"#828282\" border-radius=\"4px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />'
+                   ,TemplateHTML = '<div id=\"divMap\" style=\"\"></div>' 
+                   WHERE ID = 96;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-               SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"600px\" height=\"400px\" margin-bottom=\"0px\" />'
-               ,TemplateHTML = '<div align=\"center\" style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\" style=\"position:relative;\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table><img style=\"width:600px;\" id=\"easy2mapIimgShadow\" src=\"[siteurl]images/map_templates/easy2map_map-shadow_bottom_1.png\"/></div>' 
-               WHERE ID = 97;");
-            }
+                //does template 97 exist?
+                $arrFound8 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 97");
+                if (count($arrFound8) === 0) {
 
-            //does template 98 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 98");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (97,'Map Style 3','',3,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"600px\" height=\"400px\" margin-bottom=\"0px\" />','<div align=\"center\" style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\" style=\"position:relative;\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table><img style=\"width:600px;\" id=\"easy2mapIimgShadow\" src=\"[siteurl]images/map_templates/easy2map_map-shadow_bottom_1.png\"/></div>',1,1,NULL,NULL);")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table6.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (98,'Map Style 5 (includes list of markers)','',5,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:4px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table7.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                   SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"600px\" height=\"400px\" margin-bottom=\"0px\" />'
+                   ,TemplateHTML = '<div align=\"center\" style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\" style=\"position:relative;\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table><img style=\"width:600px;\" id=\"easy2mapIimgShadow\" src=\"[siteurl]images/map_templates/easy2map_map-shadow_bottom_1.png\"/></div>' 
+                   WHERE ID = 97;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-               SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
-               ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:4px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>'
-               ,CSSValuesList = '<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />'
-               WHERE ID = 98;");
-            }
+                //does template 98 exist?
+                $arrFound9 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 98");
+                if (count($arrFound9) === 0) {
 
-            //does template 99 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 99");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (98,'Map Style 5 (includes list of markers)','',5,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:4px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table7.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (99,'Map Style 6 (includes list of markers)',NULL,6,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:4px;margin-left:5px;margin-top:5px;position:relative;\"></div></td><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table8.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                   SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
+                   ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:4px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>'
+                   ,CSSValuesList = '<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />'
+                   WHERE ID = 98;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-               SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
-               ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:4px;margin-left:5px;margin-top:5px;position:relative;\"></div></td><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td></tr></table></div>'
-               ,CSSValuesList = '<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />'
-               WHERE ID = 99;");
-            }
+                //does template 99 exist?
+                $arrFound10 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 99");
+                if (count($arrFound10) === 0) {
 
-            //does template 100 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 100");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (99,'Map Style 6 (includes list of markers)',NULL,6,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:4px;margin-left:5px;margin-top:5px;position:relative;\"></div></td><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table8.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (100,'Map Style 7 (includes list of markers)',NULL,7,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table9.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                   SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
+                   ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:4px;margin-left:5px;margin-top:5px;position:relative;\"></div></td><td id=\"tdPinList\" style=\"vertical-align:top;width:200px;\"><div id=\"divPinList\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-right:5px;margin-top:5px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList\"></table></div></td></tr></table></div>'
+                   ,CSSValuesList = '<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />'
+                   WHERE ID = 99;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-                SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
-                ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr></table></div>'
-                ,CSSValuesList = '<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />'
-                WHERE ID = 100;");
-            }
+                //does template 100 exist?
+                $arrFound11 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 100");
+                if (count($arrFound11) === 0) {
 
-            //does template 101 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 101");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (100,'Map Style 7 (includes list of markers)',NULL,7,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />',NULL);")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table9.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (101,'Map Style 9 (includes map heading)',NULL,9,'<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"0\" cellspacing=\"0\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"\"></div><div id=\"divMap\" style=\"top:0px;left:0px;min-width:10px;margin:0px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#FFFFFF\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#525252\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" />');")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table10.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                    SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
+                    ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr></table></div>'
+                    ,CSSValuesList = '<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />'
+                    WHERE ID = 100;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-                SET CSSValues = '<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />'
-                ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"0\" cellspacing=\"0\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"\"></div><div id=\"divMap\" style=\"top:0px;left:0px;min-width:10px;margin:0px;position:relative;\"></div></td></tr></table></div>'
-                ,CSSValuesHeading = '<settings color=\"#FFFFFF\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#525252\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" />'
-                WHERE ID = 101;");
-            }
+                //does template 101 exist?
+                $arrFound12 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 101");
+                if (count($arrFound12) === 0) {
 
-            //does template 102 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 102");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (101,'Map Style 9 (includes map heading)',NULL,9,'<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"0\" cellspacing=\"0\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"\"></div><div id=\"divMap\" style=\"top:0px;left:0px;min-width:10px;margin:0px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#FFFFFF\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#525252\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" />');")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table10.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (102,'Map Style 8 (includes list of markers)',NULL,8,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />','');")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table11.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                    SET CSSValues = '<settings border-style=\"solid\" border-width=\"1px\" border-color=\"#525252\" border-radius=\"0px\" width=\"600px\" height=\"400px\" margin-left=\"auto\" margin-right=\"auto\" />'
+                    ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"0\" cellspacing=\"0\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"\"></div><div id=\"divMap\" style=\"top:0px;left:0px;min-width:10px;margin:0px;position:relative;\"></div></td></tr></table></div>'
+                    ,CSSValuesHeading = '<settings color=\"#FFFFFF\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#525252\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" />'
+                    WHERE ID = 101;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-                SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
-                ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>'
-                ,CSSValuesList = '<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />'
-                WHERE ID = 102;");
-            }
+                //does template 102 exist?
+                $arrFound13 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 102");
+                if (count($arrFound13) === 0) {
 
-            //does template 103 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 103");
-            if (count($arrFound) === 0) {
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (102,'Map Style 8 (includes list of markers)',NULL,8,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />','');")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table11.", 'easy2map'));
+                        return;
+                    }
+                } else {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (103,'Map Style 10 (includes map heading)',NULL,10,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"margin-left:3px;margin-right:3px;margin-top:3px;\"></div><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,'<settings color=\"#000000\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" border-color=\"#EBEBEB\" border-style=\"solid\" border-width=\"1px\" border-radius=\"1px\" />');")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table12.", 'easy2map'));
-                    return;
+                    $wpdb->query("UPDATE `$map_templates_table`
+                    SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
+                    ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>'
+                    ,CSSValuesList = '<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />'
+                    WHERE ID = 102;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-                SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
-                ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"margin-left:3px;margin-right:3px;margin-top:3px;\"></div><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>'
-                ,CSSValuesHeading = '<settings color=\"#000000\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" border-color=\"#EBEBEB\" border-style=\"solid\" border-width=\"1px\" border-radius=\"1px\" />'
-                WHERE ID = 103;");
-            }
-            
-            //does template 104 exist?
-            $arrFound = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 104");
-            if (count($arrFound) === 0) {
+                //does template 103 exist?
+                $arrFound14 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 103");
+                if (count($arrFound14) === 0) {
 
-                if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (104,'Map Style 11 (includes map heading)',NULL,11,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;position:relative\"><div id=\"divMapHeading\" style=\"z-index:999;position:absolute;top:0px;right:0px;min-width:10px;\"></div><div id=\"divMap\" style=\"background-color:#EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#000000\" width=\"200px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"15px\" text-align=\"center\" border-radius=\"0px\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" margin-right=\"-8px\" margin-top=\"-8px\" />');")) {
-                    echo sprintf($error, __("Could not add data to easy2map templates table13.", 'easy2map'));
-                    return;
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (103,'Map Style 10 (includes map heading)',NULL,10,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"margin-left:3px;margin-right:3px;margin-top:3px;\"></div><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,'<settings color=\"#000000\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" border-color=\"#EBEBEB\" border-style=\"solid\" border-width=\"1px\" border-radius=\"1px\" />');")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table12.", 'easy2map'));
+                        return;
+                    }
+                } else {
+
+                    $wpdb->query("UPDATE `$map_templates_table`
+                    SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
+                    ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"margin-left:3px;margin-right:3px;margin-top:3px;\"></div><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>'
+                    ,CSSValuesHeading = '<settings color=\"#000000\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" border-color=\"#EBEBEB\" border-style=\"solid\" border-width=\"1px\" border-radius=\"1px\" />'
+                    WHERE ID = 103;");
                 }
-            } else {
 
-                $wpdb->query("UPDATE `$map_templates_table`
-                SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
-                ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;position:relative\"><div id=\"divMapHeading\" style=\"z-index:999;position:absolute;top:0px;right:0px;min-width:10px;\"></div><div id=\"divMap\" style=\"background-color:#EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>'
-                ,CSSValuesHeading = '<settings color=\"#000000\" width=\"200px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"15px\" text-align=\"center\" border-radius=\"0px\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" margin-right=\"-8px\" margin-top=\"-8px\" />'
-                WHERE ID = 104;");
+                //does template 104 exist?
+                $arrFound15 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 104");
+                if (count($arrFound15) === 0) {
+
+                    if (!$wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading) VALUES (104,'Map Style 11 (includes map heading)',NULL,11,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;position:relative\"><div id=\"divMapHeading\" style=\"z-index:999;position:absolute;top:0px;right:0px;min-width:10px;\"></div><div id=\"divMap\" style=\"background-color:#EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#000000\" width=\"200px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"15px\" text-align=\"center\" border-radius=\"0px\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" margin-right=\"-8px\" margin-top=\"-8px\" />');")) {
+                        echo sprintf($error, __("Could not add data to easy2map templates table13.", 'easy2map'));
+                        return;
+                    }
+                } else {
+
+                    $wpdb->query("UPDATE `$map_templates_table`
+                    SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
+                    ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;position:relative\"><div id=\"divMapHeading\" style=\"z-index:999;position:absolute;top:0px;right:0px;min-width:10px;\"></div><div id=\"divMap\" style=\"background-color:#EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>'
+                    ,CSSValuesHeading = '<settings color=\"#000000\" width=\"200px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"15px\" text-align=\"center\" border-radius=\"0px\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" margin-right=\"-8px\" margin-top=\"-8px\" />'
+                    WHERE ID = 104;");
+                }
+
+
+                //set all old templates to ZERO
+                $wpdb->query("UPDATE `$map_templates_table` SET `Active` = 0 WHERE ID NOT IN (94,95,96,97,98,99,100,101,102,103,104);");
+                $wpdb->query("UPDATE `$map_templates_table` SET `Active` = 1 WHERE ID IN (94,95,96,97,98,99,100,101,102,103,104);");
+                //set all maps to default template
+                $wpdb->query("UPDATE `$map_table` SET `TemplateID` = 94 WHERE `TemplateID` NOT IN (94,95,96,97,98,99,100,101,102,103,104);");
+                $wpdb->query("UPDATE `$map_templates_table` SET `Version` = '" . self::e2m_version . "';");
             }
-
-
-            //set all old templates to ZERO
-            $wpdb->query("UPDATE `$map_templates_table` SET `Active` = 0 WHERE ID NOT IN (94,95,96,97,98,99,100,101,102,103,104);");
-            $wpdb->query("UPDATE `$map_templates_table` SET `Active` = 1 WHERE ID IN (94,95,96,97,98,99,100,101,102,103,104);");
-            //set all maps to default template
-            $wpdb->query("UPDATE `$map_table` SET `TemplateID` = 94 WHERE `TemplateID` NOT IN (94,95,96,97,98,99,100,101,102,103,104);");
         }
     }
 
@@ -459,8 +483,6 @@ class Easy2Map {
         if (isset($_GET["action"]) && strcasecmp($_GET["action"], "addeditpins") == 0 && isset($_GET["map_id"])) {
             include('AddEditMapPins.php');
         } else if (isset($_GET["action"]) && strcasecmp($_GET["action"], "edit") == 0 && isset($_GET["map_id"])) {
-            //include('AddEditMaps.php');
-            //include('MapAdminister.php');
             include('MapAdmin.php');
         } else if (isset($_GET["action"]) && strcasecmp($_GET["action"], "mappinimagesave") == 0 && isset($_GET["map_id"])) {
             include('MapPinImageSave.php');
