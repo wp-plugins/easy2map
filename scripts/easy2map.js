@@ -15,7 +15,7 @@ var easy2map_functions = (function() {
 
     };
 
-    insertNewMapPoint = function(objMapPoint, map) {
+    insertNewMapPoint = function(objMapPoint, map, maxPopupWidth) {
 
         var marker = new google.maps.Marker({
             position: new google.maps.LatLng(objMapPoint.lattitude, objMapPoint.longitude),
@@ -56,8 +56,13 @@ var easy2map_functions = (function() {
                 if (infoWindow) {
                     infoWindow.close();
                 }
-
-                infoWindow = new google.maps.InfoWindow();
+                
+                if (!!maxPopupWidth && typeof maxPopupWidth !== "undefined" && !isNaN(maxPopupWidth)){
+                    infoWindow = new google.maps.InfoWindow({ maxWidth: maxPopupWidth });
+                } else {
+                    infoWindow = new google.maps.InfoWindow();
+                }
+                
                 infoWindow.setContent(popup);
                 infoWindow.open(marker.map, marker);
 
@@ -128,6 +133,19 @@ var easy2map_functions = (function() {
 
         var arrMapID = mapControl.split("_");
         var mapID = arrMapID[arrMapID.length - 1];
+        var maxPopupWidth = '';
+        
+         if (!!mapSettings 
+                 && !!mapSettings.setMaxWidthPopups 
+                 && typeof mapSettings.setMaxWidthPopups !== "undefined"
+                 && !!mapSettings.maxWidthPopups 
+                 && typeof mapSettings.maxWidthPopups !== "undefined"){
+             
+             if (parseInt(mapSettings.setMaxWidthPopups) === 1 && !isNaN(mapSettings.maxWidthPopups)){
+                 maxPopupWidth = mapSettings.maxWidthPopups;
+             }
+             
+         }
 
         var data = {
             action: 'retrieve_map_points',
@@ -142,16 +160,57 @@ var easy2map_functions = (function() {
             dataType: 'json',
             success: function(returnData) {
 
-                if (typeof returnData == "undefined" || typeof returnData == "null")
+                if (typeof returnData === "undefined" || typeof returnData == "null")
                     return;
                 if (!returnData)
                     return;
-                if (returnData.length == 0)
+                if (returnData.length === 0)
                     return;
 
                 for (var t = 0; t < returnData.length; t++) {
 
                     var arrLatLng = replaceAll(replaceAll(replaceAll(returnData[t].LatLong, ' ', ''), '(', ''), ')', '').split(',');
+                    
+                    var pinHTML = returnData[t].MapPinHTML;
+                    
+                    //show marker's name as title if settings indicate so
+                    if (!!mapSettings && !!mapSettings.showMarkerTitle && typeof mapSettings.showMarkerTitle !== "undefined"){
+                        if (parseInt(mapSettings.showMarkerTitle) === 1){
+                            
+                            if (!!mapSettings.markerNameFontSize && mapSettings.markerNameFontSize !== "undefined" && mapSettings.markerNameFontSize.length > 0){
+                                var fontSize = mapSettings.markerNameFontSize + 'em';
+                            } else {
+                                fontSize = '1.2em';
+                            }                            
+                            
+                            pinHTML = "<p style='margin:0; padding:0;font-weight:bold;font-size:" + fontSize + ";'>" + returnData[t].Title + "</p>" + pinHTML;
+                        }
+                    }
+                    
+                    //show directions link if settings indicate so
+                    if (!!mapSettings && !!mapSettings.showDirections && typeof mapSettings.showDirections !== "undefined"){
+                        if (parseInt(mapSettings.showDirections) === 1){
+                            
+                            var directionsURL = "https://maps.google.com/maps?t=m&z=16&daddr=" + arrLatLng[0] + "," + arrLatLng[1];
+                            
+                            directionsFontSize = '1.2em';
+                            if (!!mapSettings.directionsLinkFontSize && mapSettings.directionsLinkFontSize !== "undefined" && mapSettings.directionsLinkFontSize.length > 0){
+                                var directionsFontSize = mapSettings.directionsLinkFontSize + 'em';
+                            }
+                            
+                            var directionsLinkTitle = 'Get Directions';
+                            if (!!mapSettings.directionsLinkTitle && mapSettings.directionsLinkTitle !== "undefined" && mapSettings.directionsLinkTitle.length > 0){
+                                try{
+                                    directionsLinkTitle = decodeURIComponent(mapSettings.directionsLinkTitle);
+                                    
+                                }catch(e){
+                                    directionsLinkTitle = mapSettings.directionsLinkTitle;
+                                }
+                            } 
+                            
+                            pinHTML = pinHTML + "<a style='margin:0;margin-top:0.8em;display:block;padding:0;text-align:right;font-weight:bold;font-size:" + directionsFontSize + ";' target='_blank' href='" + directionsURL + "'>" + directionsLinkTitle + "</a>";
+                        }
+                    }
 
                     var objMapPoint = {
                         lattitude: arrLatLng[0],
@@ -160,15 +219,15 @@ var easy2map_functions = (function() {
                         ID: returnData[t].ID,
                         icon: returnData[t].ImageURL,
                         settings: returnData[t].Settings,
-                        pinHTML: returnData[t].MapPinHTML
-                    }
+                        pinHTML: pinHTML
+                    };
                     arrMapPins.push(objMapPoint);
                 }
 
                 var markersArray = [];
 
                 for (var i = 0; i < arrMapPins.length; i++) {
-                    markersArray.push(insertNewMapPoint(arrMapPins[i], map));
+                    markersArray.push(insertNewMapPoint(arrMapPins[i], map, maxPopupWidth));
                 }
 
                 /*if (!!mapSettings.clusterpins){

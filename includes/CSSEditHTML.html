@@ -12,14 +12,14 @@
                id="txtDefaultValue_color" 
                onchange="jQuery('#txtDefaultValue_color2').val(jQuery(this).val());"
                class="color" />
-        
+
         <input type="text" style="width:75px;height:28px;float:right;" 
                value="FFFFFF" 
                onblur="jQuery('#txtDefaultValue_color').css('background-color', '#' + jQuery(this).val()).val(jQuery(this).val());"
                name="txtDefaultValue_color2" 
                id="txtDefaultValue_color2"/>
         <span style="float:right;font-weight:bold;padding:3px;">(Edit Color Manually Here):</span>
-        
+
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -36,7 +36,13 @@
     </div>
     <div class="modal-body">
         <input type="number" class="input-mini" style="height:28px" 
-               id="txtDefaultValue_pixel" name="txtDefaultValue_pixel">  pixels
+               id="txtDefaultValue_pixel" name="txtDefaultValue_pixel">
+        &nbsp;
+        <select class="Heading3" style="width:70px;" id="txtDefaultValue_pixel_em" name="txtDefaultValue_pixel_em">
+            <option value="px">pixels</option>
+            <option value="em">em</option>
+        </select>
+
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>

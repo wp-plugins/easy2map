@@ -26,19 +26,21 @@
 
 <form id="save-easy2map_key" name="save-easy2map_key" action="" method="post">
 
-    <table style="background-color:#EBEBEB;width:60%;margin-top:10px;margin-left:auto;margin-right:auto;" cellspacing="3" cellpadding="3" class="table table-bordered">
+    <table style="background-color:#EBEBEB;width:80%;margin-top:10px;margin-left:auto;margin-right:auto;" cellspacing="3" cellpadding="3" class="table table-bordered">
         <tr>
-            <td colspan="2" style="font-size:16px;text-align:left;font-weight:bold;">Unlock all the plugin features by upgrading to the Easy2Map Ultimate Version</td>
+            <td colspan="2" style="font-size:16px;text-align:center;font-weight:bold;">Build beautiful maps - unlock all the plugin features by upgrading to the Easy2Map Ultimate Version</td>
         </tr>
         <tr><td colspan="2" style="font-size:13px;text-align:left;font-weight:bold;color:#70aa00;">Ultimate Version Features:</td></tr>
         <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
-            <td style="font-weight:bold;">Edit map layout, with a choice of 11 great looking template options</td></tr>
+            <td style="font-weight:bold;">Edit map layout, with an ever-growing list of great looking templates available</td></tr>
         <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
-            <td style="font-weight:bold;">Display list of markers alongside map (as one of the map template options)</td></tr>
+            <td style="font-weight:bold;">Have the option of displaying a list of markers alongside your map</td></tr>
         <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
             <td style="font-weight:bold;">Administer map type, and maps' individual style elements to your exact requirements</td></tr>
         <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
             <td style="font-weight:bold;">Easily import and export Easy2Map maps and/or markers</td></tr>
+        <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
+            <td style="font-weight:bold;">Administer markers' popup features, such as 'Directions' link</td></tr>
 
         <?php
         if (isset($_POST['easy2map_key']) && isset($_POST['action']) && $_POST['action'] == "update_easy2mapkey") {
@@ -51,25 +53,23 @@
                     echo '<tr><td colspan="2" style="text-align:center;vertical-align:middle;height:40px;font-size:1.3em;color:#70aa00;font-weight:bold;">
                             Your version has successfully been upgraded, thank you!
                         </td></tr>';
-                    
                 } else {
 
                     echo '<tr><td colspan="2" style="text-align:center;vertical-align:middle;height:40px;font-size:1.3em;color:red;font-weight:bold;">
                             Your version upgrade was not successful!
                         </td></tr>';
                 }
-                
             } else {
                 echo '<tr><td colspan="2" style="text-align:center;vertical-align:middle;height:40px;font-size:1.3em;color:red;font-weight:bold;">
                         Update failed!
                     </td></tr>';
             }
         }
-        
+
         if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) {
 
             echo '<tr><td colspan="2" style="text-align:center;vertical-align:middle;height:100px;">
-                    <a target="_blank" href="http://easy2map.com/payment/paypal/easy2MapPro.php" style="font-size:1.3em;color:#70aa00;font-weight:bold;">Click Here to Upgrade to the Ultimate Version for $11.99</a>
+                    <a target="_blank" href="http://easy2map.com/payment/paypal/easy2MapPro.php" style="text-decoration:underline;font-size:1.3em;color:#70aa00;font-weight:bold;">Click Here to Upgrade to the Ultimate Version for $11.99</a>
                     <img style="margin-left:30px;margin-right:auto;" src="' . easy2map_get_plugin_url('/images/paypal-verified.png') . '"></td></tr>';
         }
 
@@ -85,28 +85,15 @@
         <input type="submit" class="btn btn-primary" style="margin-left:100px;width:150px" value="Activate">';
         }
         ?>
+        
+        <?php if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) { ?>
 
-        <table style="background-color:#EBEBEB;margin-top:40px;margin-left:auto;margin-right:auto;" cellspacing="3" cellpadding="3" class="table table-bordered">
+        <table style="background-color:#EBEBEB;margin-top:40px;margin-left:auto;margin-right:auto;width:80%;" cellspacing="3" cellpadding="3" class="table table-bordered">
             <tr>
-                <td colspan="2" style="font-size:16px;text-align:left;font-weight:bold;">Easy2Map Ultimate Version</td>
+                <td colspan="2" style="font-size:16px;text-align:center;font-weight:bold;">Take Full Control of your Maps Today with the Easy2Map Ultimate Version!</td>
             </tr>
-            <tr><td colspan="2" style="font-weight:bold;">Map Dashboard</td></tr>
-            <tr><td colspan="2" style="text-align:center"><img class="exampleImg" src="<?php echo easy2map_get_plugin_url('/images/ultimate_img1.png'); ?>" width="800px" /></td></tr>
-            <tr><td colspan="2" style="font-weight:bold;">Examples of Maps Created in Easy2Map Ultimate Version</td></tr>
-            <tr>
-                <td style="text-align:center;font-weight:bold;">Map Style 5 (Map Type: Satellite)<br><img class="exampleImg" src="<?php echo easy2map_get_plugin_url('/images/ultimate_img2.png'); ?>" width="400px" /></td>
-                <td style="text-align:center;font-weight:bold;">Map Style 11 (Map Type: RoadMap)<br><img class="exampleImg" src="<?php echo easy2map_get_plugin_url('/images/ultimate_img3.png'); ?>" width="400px" /></td>
-            </tr>
-            <tr>
-                <td style="text-align:center;font-weight:bold;">Map Style 3  (Map Type: Terrain)<br><img class="exampleImg" src="<?php echo easy2map_get_plugin_url('/images/ultimate_img4.png'); ?>" width="400px" /></td>
-                <td style="text-align:center;font-weight:bold;">Map Style 9  (Map Type: RoadMap)<br><img class="exampleImg" src="<?php echo easy2map_get_plugin_url('/images/ultimate_img5.png'); ?>" width="400px" /></td>
-            </tr>
-            <tr>
-                <td style="text-align:center;font-weight:bold;">Map Style 7 (Map Type: RoadMap)<br><img class="exampleImg" src="<?php echo easy2map_get_plugin_url('/images/ultimate_img6.png'); ?>" width="400px" /></td>
-                <td style="text-align:center;font-weight:bold;"></td>
-            </tr>
-
-
-
-
-            </form>
+            <tr><td colspan="2" style="text-align:center"><img class="exampleImg" src="<?php echo easy2map_get_plugin_url('/images/ultimate_img0.png'); ?>" width="800px" /></td></tr>
+        </table>
+        
+        <?php } ?>
+</form>

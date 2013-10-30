@@ -70,16 +70,24 @@ var easy2map_map_functions = (function() {
 
                     jQuery('[id ^= styleElement]').each(function() {
 
-                        if (jQuery(this).attr('item') == "height") {
-                            jQuery("#divMap").height('200px');
-                            jQuery("#divPinList").height('186px');
+                        if (jQuery(this).attr('item') === "height") {
+
+                            if (!!jQuery("#divPinList2")) {
+                                jQuery('#divMap').css(replaceAll(jQuery(this).attr('item'), "_", "-"), jQuery(this).attr('value'));
+                            } else {
+
+                                jQuery("#divMap").height('200px');
+                                jQuery("#divPinList").height('186px');
+                            }
                         }
 
                         jQuery('#divMapParent').css(replaceAll(jQuery(this).attr('item'), "_", "-"), jQuery(this).attr('value'));
                     });
 
-                    jQuery("#divMap").height(jQuery("#divMapParent").height());
-                    jQuery("#divPinList").height(jQuery("#divMapParent").height() - 14);
+                    if (!!jQuery("#divPinList2") === false) {
+                        jQuery("#divMap").height(jQuery("#divMapParent").height());
+                        jQuery("#divPinList").height(jQuery("#divMapParent").height() - 14);
+                    }
 
                     jQuery("#easy2mapIimgShadow").width(jQuery("#divMapParent").width());
                     jQuery("#easy2mapIimgShadow").width(jQuery("#divMapParent").width());
@@ -255,7 +263,7 @@ var easy2map_map_functions = (function() {
                 easy2map_map_functions.changeMapTemplate();
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                alert('A' + errorThrown);
+                alert(errorThrown);
             }
         });
 
@@ -264,20 +272,39 @@ var easy2map_map_functions = (function() {
     return {
         //Change a single CSS value
         changeElementValue: function(i, element, proVersion) {
-            
-            if (proVersion === false) return;
 
-            var attribute, value;
+            if (proVersion === false)
+                return;
+
+            var attribute, value, type = "px";
 
             if (element === 1) {
                 attribute = jQuery('#styleElement' + i).attr('item');
-                value = replaceAll(replaceAll(jQuery('#styleElement' + i).attr('value'), "px", ""), "#", "");
+                value = jQuery('#styleElement' + i).attr('value');
+                if (value.indexOf("px") !== -1){
+                    type = "px";
+                } else if (value.indexOf("em") !== -1){
+                    type = "em";
+                }                
+                value = replaceAll(replaceAll(replaceAll(value, "em", ""), "px", ""), "#", "");
             } else if (element === 2) {
                 attribute = jQuery('#styleList' + i).attr('item');
-                value = replaceAll(replaceAll(jQuery('#styleList' + i).attr('value'), "px", ""), "#", "");
+                value = jQuery('#styleList' + i).attr('value');
+                if (value.indexOf("px") !== -1){
+                    type = "px";
+                } else if (value.indexOf("em") !== -1){
+                    type = "em";
+                }
+                value = replaceAll(replaceAll(replaceAll(value, "em", ""), "px", ""), "#", "");
             } else if (element === 3) {
                 attribute = jQuery('#styleHeading' + i).attr('item');
-                value = replaceAll(replaceAll(jQuery('#styleHeading' + i).attr('value'), "px", ""), "#", "");
+                value = jQuery('#styleHeading' + i).attr('value');
+                if (value.indexOf("px") !== -1){
+                    type = "px";
+                } else if (value.indexOf("em") !== -1){
+                    type = "em";
+                }
+                value = replaceAll(replaceAll(replaceAll(value, "em", ""), "px", ""), "#", "");
             }
 
             $styleElementIndex = i;
@@ -306,34 +333,36 @@ var easy2map_map_functions = (function() {
                     {
 
                         jQuery('#tdheading_pixel').html("Border Width");
-                        jQuery('#txtDefaultValue_pixel').find('option').remove();
-                        for (var i = parseInt(0); i <= parseInt(50); i++)
-                            jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
+                        //jQuery('#txtDefaultValue_pixel').find('option').remove();
+                        //for (var i = parseInt(0); i <= parseInt(50); i++)
+                        //    jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
                         jQuery('#div_edit_pixel').modal();
                         jQuery('#txtDefaultValue_pixel').val(value).focus();
+                        jQuery('#txtDefaultValue_pixel_em').val(type).prop('disabled', false);
                         break;
                     }
 
                 case "font_size":
                     {
                         jQuery('#tdheading_pixel').html("Font Size");
-                        jQuery('#txtDefaultValue_pixel').find('option').remove();
-                        for (var i = parseInt(5); i <= parseInt(25); i++)
-                            jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
+                        //jQuery('#txtDefaultValue_pixel').find('option').remove();
+                        //for (var i = parseInt(5); i <= parseInt(25); i++)
+                        //    jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
                         jQuery('#div_edit_pixel').modal();
                         jQuery('#txtDefaultValue_pixel').val(value).focus();
+                        jQuery('#txtDefaultValue_pixel_em').val(type).prop('disabled', false);
                         break;
                     }
 
                 case "padding":
                     {
                         jQuery('#tdheading_pixel').html("Padding");
-                        jQuery('#txtDefaultValue_pixel').find('option').remove();
-                        for (var i = parseInt(10); i <= parseInt(2000); i++)
-                            jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
+                        //jQuery('#txtDefaultValue_pixel').find('option').remove();
+                        //for (var i = parseInt(10); i <= parseInt(2000); i++)
+                        //    jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
                         jQuery('#div_edit_pixel').modal();
                         jQuery('#txtDefaultValue_pixel').val(value).focus();
-                        break;
+                        jQuery('#txtDefaultValue_pixel_em').val(type).prop('disabled', false);
                         break;
                     }
 
@@ -348,7 +377,7 @@ var easy2map_map_functions = (function() {
                 case "width":
                     {
 
-                        if (value.indexOf("%") != -1) {
+                        if (value.indexOf("%") !== -1) {
 
                             //percentage-based width
                             jQuery('#tdheading_percentage').html("Width");
@@ -364,6 +393,7 @@ var easy2map_map_functions = (function() {
                             jQuery('#tdheading_pixel').html("Width");
                             jQuery('#div_edit_pixel').modal();
                             jQuery('#txtDefaultValue_pixel').val(value).focus();
+                            jQuery('#txtDefaultValue_pixel_em').val('px').prop('disabled', 'disabled');
                         }
 
 
@@ -374,11 +404,25 @@ var easy2map_map_functions = (function() {
                     {
 
                         jQuery('#tdheading_pixel').html("Height");
-                        jQuery('#txtDefaultValue_pixel').find('option').remove();
-                        for (var i = parseInt(10); i <= parseInt(2000); i++)
-                            jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
+                        //jQuery('#txtDefaultValue_pixel').find('option').remove();
+                        //for (var i = parseInt(10); i <= parseInt(2000); i++)
+                        //    jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
                         jQuery('#div_edit_pixel').modal();
                         jQuery('#txtDefaultValue_pixel').val(value).focus();
+                        jQuery('#txtDefaultValue_pixel_em').val('px').prop('disabled', 'disabled');
+                        break;
+                    }
+
+                case "max_height":
+                    {
+
+                        jQuery('#tdheading_pixel').html("Minimum Height");
+                        //jQuery('#txtDefaultValue_pixel').find('option').remove();
+                        //for (var i = parseInt(10); i <= parseInt(2000); i++)
+                        //    jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
+                        jQuery('#div_edit_pixel').modal();
+                        jQuery('#txtDefaultValue_pixel').val(value).focus();
+                        jQuery('#txtDefaultValue_pixel_em').val('px').prop('disabled', 'disabled');
                         break;
                     }
 
@@ -438,11 +482,12 @@ var easy2map_map_functions = (function() {
                     {
 
                         jQuery('#tdheading_pixel').html("Border Radius");
-                        jQuery('#txtDefaultValue_pixel').find('option').remove();
-                        for (var i = parseInt(0); i <= parseInt(500); i++)
-                            jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
+                        //jQuery('#txtDefaultValue_pixel').find('option').remove();
+                        //for (var i = parseInt(0); i <= parseInt(500); i++)
+                        //    jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
                         jQuery('#div_edit_pixel').modal();
                         jQuery('#txtDefaultValue_pixel').val(value).focus();
+                        jQuery('#txtDefaultValue_pixel_em').val(type).prop('disabled', false);
                         break;
                     }
 
@@ -564,6 +609,9 @@ var easy2map_map_functions = (function() {
             $map.setMapTypeId($mapType);
 
         },
+        changeMarkerPopups: function() {
+            refreshExampleMap(true);
+        },
         cloneExistingMap: function(mapID) {
 
             this.retrieveMapSettings(mapID, true);
@@ -590,7 +638,7 @@ var easy2map_map_functions = (function() {
         //save the map's new size 
         changeMapSize: function(size) {
 
-            if (size == "custom") {
+            if (size === "custom") {
                 jQuery('[id ^= styleElement]').each(function() {
 
                     if (jQuery(this).attr('item') === 'width') {
@@ -665,6 +713,16 @@ var easy2map_map_functions = (function() {
                     }
 
                     jQuery('#mapType').val(settings.mapType.toUpperCase());
+                    jQuery('#markerNameInPopups').prop("checked", parseInt(settings.showMarkerTitle) === 1 ? true : false);
+                    jQuery('#markerNameFontSize').val(parseInt(settings.markerNameFontSize) > 0 ? settings.markerNameFontSize + '' : 1 + '');
+
+                    jQuery('#setMaxWidthPopups').prop("checked", parseInt(settings.setMaxWidthPopups) === 1 ? true : false);
+                    jQuery('#maxWidthPopups').val(parseInt(settings.maxWidthPopups) > 0 ? settings.maxWidthPopups : 250);
+
+                    jQuery('#directionsInPopups').prop("checked", parseInt(settings.showDirections) === 1 ? true : false);
+                    jQuery('#directionsLinkTitle').val(!!settings.directionsLinkTitle ? settings.directionsLinkTitle : "Get Directions");
+                    jQuery('#directionsLinkFontSize').val(parseInt(settings.directionsLinkFontSize) > 0 ? settings.directionsLinkFontSize : 1);
+
                     jQuery('#mapEditPencil').show();
                     retrieveMapTemplates(mapID, $mapSettings.TemplateID);
 
@@ -704,7 +762,7 @@ var easy2map_map_functions = (function() {
 
                 case "font_size":
                     {
-                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + "px";
+                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
                         jQuery('#div_edit_em').hide();
                         break;
 
@@ -712,7 +770,7 @@ var easy2map_map_functions = (function() {
 
                 case "padding":
                     {
-                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + "px";
+                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
                         jQuery('#div_edit_em').hide();
                         break;
                     }
@@ -726,14 +784,14 @@ var easy2map_map_functions = (function() {
 
                 case "border_width":
                     {
-                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + "px";
+                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
                         jQuery('#div_edit_pixel').hide();
                         break;
                     }
                 case "width":
                     {
 
-                        if (jQuery('#styleElement' + $styleElementIndex).attr('value').indexOf("%") != -1) {
+                        if (jQuery('#styleElement' + $styleElementIndex).attr('value').indexOf("%") !== -1) {
                             //percentage-based width
                             alteredValue = jQuery('#txtDefaultValue_percentage').val() + "%";
                             jQuery('#div_edit_percentage').hide();
@@ -747,6 +805,12 @@ var easy2map_map_functions = (function() {
                         break;
                     }
                 case "height":
+                    {
+                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + "px";
+                        jQuery('#div_edit_pixel').hide();
+                        break;
+                    }
+                case "max_height":
                     {
                         alteredValue = jQuery('#txtDefaultValue_pixel').val() + "px";
                         jQuery('#div_edit_pixel').hide();
@@ -814,7 +878,7 @@ var easy2map_map_functions = (function() {
                     }
                 case "border_radius":
                     {
-                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + "px";
+                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
                         jQuery('#div_edit_pixel').hide();
                         break;
                     }
@@ -845,6 +909,15 @@ var easy2map_map_functions = (function() {
             var $lat = settings.lattitude;
             var $lng = settings.longitude;
             var $zoom = parseInt(settings.zoom);
+
+            var $showMarkerTitle = jQuery('#markerNameInPopups').prop("checked") ? "1" : "0";
+            var $markerNameFontSize = jQuery('#markerNameFontSize').val();
+            var $setMaxWidthPopups = jQuery('#setMaxWidthPopups').prop("checked") ? "1" : "0";
+            var $maxWidthPopups = jQuery('#maxWidthPopups').val();
+
+            var $showDirections = jQuery('#directionsInPopups').prop("checked") ? "1" : "0";
+            var $directionsLinkTitle = encodeURIComponent(jQuery('#directionsLinkTitle').val());
+            var $directionsLinkFontSize = jQuery('#directionsLinkFontSize').val();
 
             if ($map != null) {
                 $lat = $map.getCenter().lat();
@@ -892,7 +965,14 @@ var easy2map_map_functions = (function() {
                 zoomControl_style: 'SMALL',
                 polyline_strokecolor: '000000',
                 polyline_opacity: '1.0',
-                polyline_strokeweight: '1'
+                polyline_strokeweight: '1',
+                showMarkerTitle: $showMarkerTitle,
+                markerNameFontSize: $markerNameFontSize,
+                setMaxWidthPopups: $setMaxWidthPopups,
+                maxWidthPopups: $maxWidthPopups,
+                showDirections: $showDirections,
+                directionsLinkTitle: $directionsLinkTitle,
+                directionsLinkFontSize: $directionsLinkFontSize
             };
             var options = {
                 formatOutput: true,
@@ -946,7 +1026,7 @@ var easy2map_map_functions = (function() {
 
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert('B' + errorThrown);
+                    alert(errorThrown);
                 }
             });
         },
@@ -966,7 +1046,7 @@ var easy2map_map_functions = (function() {
                     jQuery("#divMapHeading").html(jQuery('#mapName').val() === "" ? "Untitled Map" : jQuery('#mapName').val());
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert('C' + errorThrown);
+                    alert(errorThrown);
                 }
             });
         },

@@ -62,7 +62,7 @@ if (isset($_GET["action"]) && strcasecmp($_GET["action"], "deletemap") == 0 && i
                             <img alt="easy2mapwordpress131723" src="<?php echo easy2map_get_plugin_url('/images/e2m_icon_add.png'); ?>" style="margin-right:10px;"> Create New Map</a>
                             
         <?php if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) { ?>
-            <a style="float:right;margin-right:10%;font-size:1.25em;color:#70aa00;" href="?page=easy2map&action=activation">Upgrade to Easy2Map Ultimate Version</a>
+            <a style="float:right;margin-right:10%;font-size:1.25em;color:#70aa00;" href="?page=easy2map&action=activation">Upgrade to Easy2Map Ultimate Version Here</a>
         <?php } else {?>
             <span style="float:right;margin-right:10%;font-size:1.3em;color:#70aa00;margin-top:-5px;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>" style="margin-right:5px;" />Easy2Map Ultimate Version</span>
         <?php }?>                     
@@ -82,7 +82,7 @@ if (isset($_GET["action"]) && strcasecmp($_GET["action"], "deletemap") == 0 && i
             <th style="text-align:center"><b>Delete Map</b></th>
         </tr>
 
-        <?php $results = $wpdb->get_results("SELECT * FROM $mapsTable WHERE IsActive = 1 ORDER BY ID DESC;");
+        <?php $results = $wpdb->get_results("SELECT * FROM $mapsTable WHERE IsActive = 1 ORDER BY LastInvoked DESC;");
         //if (count($results) == 0) header('Location: ?page=easy2map&action=edit&map_id=0&no_back=true'); 
 
         foreach ($results as $result) {
@@ -112,6 +112,7 @@ if (isset($_GET["action"]) && strcasecmp($_GET["action"], "deletemap") == 0 && i
         ?>
     </table>
     <?php if (count($results) > 0) { ?>
+    <a style="float:left;margin-left:5%;font-size:1.1em;font-weight:bold" href="http://wordpress.org/support/view/plugin-reviews/easy2map#postform" target="_blank">Rate this plugin on WordPress</a>
     <a style="float:right;margin-right:5%;font-size:1.1em;font-weight:bold" href="http://easy2map.com/contactUs.php" target="_blank">Your comments and feedback are always welcome</a>
     <?php } ?>
 </div>

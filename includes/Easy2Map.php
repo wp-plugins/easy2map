@@ -6,7 +6,7 @@ class Easy2Map {
     const plugin_name = 'Easy2Map';
     const min_php_version = '5.0';
     const min_wp_version = '3.0';
-    const e2m_version = '1.1.8';
+    const e2m_version = '2.0.1';
 
     // Used to uniquely identify this plugin's menu page in the WP manager
     const admin_menu_slug = 'easy2map';
@@ -87,13 +87,31 @@ class Easy2Map {
             `CSSValuesHeading` text,
             PRIMARY KEY (`ID`),
             UNIQUE KEY `ID_UNIQUE` (`ID`)
-            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1";
+            ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8";
 
             if (!$wpdb->query($SQL)) {
                 echo sprintf($error, __("Could not create easy2map maps table.", 'easy2map'));
                 return;
             }
-        } 
+        } else {
+
+            try {
+
+                //convert to utf8 collation if necessary
+                $collation = $wpdb->get_var("SELECT CCSA.character_set_name 
+            FROM information_schema.`TABLES` T,
+            information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+            WHERE CCSA.collation_name = T.table_collation
+            AND T.table_schema  = '" . DB_NAME . "'
+            AND T.table_name = '$map_table' LIMIT 1;");
+
+                if (isset($collation) && strcasecmp(strtolower($collation), "utf8") !== 0) {
+                    $wpdb->query("ALTER TABLE `$map_table` CONVERT TO CHARACTER SET utf8;");
+                }
+            } catch (Exception $e) {
+                
+            }
+        }
 
         $result = $wpdb->get_var("show tables like '$map_points_table'");
 
@@ -112,11 +130,29 @@ class Easy2Map {
                 UNIQUE KEY `ID_UNIQUE` (`ID`),
                 KEY `wp_easy2map_map_points_MapID` (`MapID`),
                 CONSTRAINT `wp_easy2map_map_points_MapID` FOREIGN KEY (`MapID`) REFERENCES `$map_table` (`ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
-              ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1";
+              ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8";
 
             if (!$wpdb->query($SQL)) {
                 echo sprintf($error, __("Could not create easy2map pins table.", 'easy2map'));
                 return;
+            }
+        } else {
+
+            try {
+
+                //convert to utf8 collation if necessary
+                $collation = $wpdb->get_var("SELECT CCSA.character_set_name 
+            FROM information_schema.`TABLES` T,
+            information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+            WHERE CCSA.collation_name = T.table_collation
+            AND T.table_schema  = '" . DB_NAME . "'
+            AND T.table_name = '$map_points_table' LIMIT 1;");
+
+                if (isset($collation) && strcasecmp(strtolower($collation), "utf8") !== 0) {
+                    $wpdb->query("ALTER TABLE `$map_points_table` CONVERT TO CHARACTER SET utf8;");
+                }
+            } catch (Exception $e) {
+                
             }
         }
 
@@ -130,7 +166,7 @@ class Easy2Map {
             `TemplateHTML` text,
             PRIMARY KEY (`ID`),
             UNIQUE KEY `ID_UNIQUE` (`ID`)
-          ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1";
+          ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8";
 
             if (!$wpdb->query($SQL)) {
                 echo sprintf($error, __("Could not create easy2map pin templates table.", 'easy2map'));
@@ -180,7 +216,7 @@ class Easy2Map {
             `Version` varchar(128) DEFAULT NULL,
             PRIMARY KEY (`ID`),
             UNIQUE KEY `ID_UNIQUE` (`ID`)
-          ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1";
+          ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8";
 
             if (!$wpdb->query($SQL)) {
                 echo sprintf($error, __("Could not create easy2map templates table1.", 'easy2map'));
@@ -198,6 +234,16 @@ class Easy2Map {
             $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (102,'Map Style 8 (includes list of markers)',NULL,8,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><ul id=\"ulEasy2MapPinList\" style=\"padding:0px;margin:0px;\"></ul></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" border-radius=\"0px\" />','','" . self::e2m_version . "');");
             $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (103,'Map Style 10 (includes map heading)',NULL,10,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMapHeading\" style=\"margin-left:3px;margin-right:3px;margin-top:3px;\"></div><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,NULL,'<settings color=\"#000000\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"14px\" text-align=\"center\" border-color=\"#EBEBEB\" border-style=\"solid\" border-width=\"1px\" border-radius=\"1px\" />','" . self::e2m_version . "');");
             $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (104,'Map Style 11 (includes map heading)',NULL,11,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" style=\"vertical-align:top;position:relative\"><div id=\"divMapHeading\" style=\"z-index:999;position:absolute;top:0px;right:0px;min-width:10px;\"></div><div id=\"divMap\" style=\"background-color:#EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:3px;margin-left:3px;margin-right:3px;margin-top:3px;position:relative;\"></div></td></tr></table></div>',1,1,'','<settings color=\"#000000\" width=\"200px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" padding=\"3px\" font-size=\"15px\" text-align=\"center\" border-radius=\"0px\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" margin-right=\"-8px\" margin-top=\"-8px\" />','" . self::e2m_version . "');");
+            
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (105,'Map Style 12 (1-column list of markers above map)',NULL,12,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList1\"></table></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (106,'Map Style 13 (1-column list of markers below map)',NULL,13,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList1\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (107,'Map Style 14 (2-column list of markers above map)',NULL,14,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList2\"></table></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (108,'Map Style 15 (2-column list of markers below map)',NULL,15,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList2\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (109,'Map Style 16 (3-column list of markers above map)',NULL,16,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList3\"></table></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (110,'Map Style 17 (3-column list of markers below map)',NULL,17,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList3\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (111,'Map Style 18 (4-column list of markers above map)',NULL,18,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList4\"></table></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (112,'Map Style 19 (4-column list of markers below map)',NULL,19,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList4\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            
         } else {
 
             $arrFound = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
@@ -436,12 +482,71 @@ class Easy2Map {
                     WHERE ID = 104;");
                 }
 
+                //does template 105 exist?
+                $arrFound16 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 105");
+                if (count($arrFound16) === 0) {
+
+                    $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (105,'Map Style 12 (1-column list of markers above map)',NULL,12,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList1\"></table></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+                }
+
+
+                //does template 106 exist?
+                $arrFound17 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 106");
+                if (count($arrFound17) === 0) {
+
+                    $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (106,'Map Style 13 (1-column list of markers below map)',NULL,13,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList1\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+                }
+                
+                //does template 107 exist?
+                $arrFound16 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 107");
+                if (count($arrFound16) === 0) {
+
+                    $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (107,'Map Style 14 (2-column list of markers above map)',NULL,14,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList2\"></table></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+                }
+
+                //does template 108 exist?
+                $arrFound17 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 108");
+                if (count($arrFound17) === 0) {
+
+                    $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (108,'Map Style 15 (2-column list of markers below map)',NULL,15,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList2\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+                }
+                
+                //does template 109 exist?
+                $arrFound18 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 109");
+                if (count($arrFound18) === 0) {
+
+                    $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (109,'Map Style 16 (3-column list of markers above map)',NULL,16,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList3\"></table></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+                }
+                
+                //does template 110 exist?
+                $arrFound19 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 110");
+                if (count($arrFound19) === 0) {
+
+                    $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (110,'Map Style 17 (3-column list of markers below map)',NULL,17,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList3\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            
+                }
+                
+                //does template 111 exist?
+                $arrFound20 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 111");
+                if (count($arrFound20) === 0) {
+
+                    $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (111,'Map Style 18 (4-column list of markers above map)',NULL,18,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-bottom:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList4\"></table></div></td></tr><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            
+                }
+                
+                //does template 112 exist?
+                $arrFound21 = $wpdb->get_results("SELECT ID FROM `$map_templates_table` WHERE ID = 112");
+                if (count($arrFound21) === 0) {
+
+                    $wpdb->query("INSERT INTO `$map_templates_table` (ID,TemplateName,ExampleImage,DisplayOrder,CSSValues,TemplateHTML,StyleParentOnly,Active,CSSValuesList,CSSValuesHeading,Version) VALUES (112,'Map Style 19 (4-column list of markers below map)',NULL,19,'<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />','<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin:5px;position:relative;\"></div></td></tr><tr><td id=\"tdPinList\" style=\"vertical-align:top;width:100%;\"><div id=\"divPinList2\" style=\"overflow:auto;top:0px;left:0px;min-width:10px;margin:5px;margin-top:0px;position:relative;\"><table cellpadding=\"2\" cellspacing=\"2\" id=\"tblEasy2MapPinList4\"></table></div></td></tr></table></div>',1,1,'<settings color=\"#000000\" font-size=\"12px\" font-family=\"Arial, Helvetica, sans-serif\" background-color=\"#FFFFFF\" text-align=\"left\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" max-height=\"300px\" border-radius=\"0px\" />',NULL,'" . self::e2m_version . "');");
+            
+                }
 
                 //set all old templates to ZERO
-                $wpdb->query("UPDATE `$map_templates_table` SET `Active` = 0 WHERE ID NOT IN (94,95,96,97,98,99,100,101,102,103,104);");
-                $wpdb->query("UPDATE `$map_templates_table` SET `Active` = 1 WHERE ID IN (94,95,96,97,98,99,100,101,102,103,104);");
+                $wpdb->query("UPDATE `$map_templates_table` SET `Active` = 0 WHERE ID NOT IN (94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112);");
+                $wpdb->query("UPDATE `$map_templates_table` SET `Active` = 1 WHERE ID IN (94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,107,108,109,110,111,112);");
                 //set all maps to default template
-                $wpdb->query("UPDATE `$map_table` SET `TemplateID` = 94 WHERE `TemplateID` NOT IN (94,95,96,97,98,99,100,101,102,103,104);");
+                $wpdb->query("UPDATE `$map_table` SET `TemplateID` = 94 WHERE `TemplateID` NOT IN (94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,107,108,109,110,111,112);");
                 $wpdb->query("UPDATE `$map_templates_table` SET `Version` = '" . self::e2m_version . "';");
             }
         }
@@ -586,23 +691,32 @@ class Easy2Map {
               margin: -1.5em 0 !important;
               padding: 0px !important;
             }
-            #tblEasy2MapPinList td, tr{
-                border-width:0px;
-            }
-            #tblEasy2MapPinList td{
-                padding:3px !important;
-            }
-
-            #tblEasy2MapPinList{
-                border-width:0px;
-            }
-             #tblEasy2MapPinList img {
-                max-width: none !important;
-                border-radius: 0px !important;
-                border-width:0px;
-                box-shadow: 0 0 0 transparent !important;
-            }
+            #tblEasy2MapPinList td, tr{border-width:0px;}
+            #tblEasy2MapPinList td{padding:3px !important;}
+            #tblEasy2MapPinList{border-width:0px;}
+            #tblEasy2MapPinList img {max-width: none !important;border-radius: 0px !important;border-width:0px;box-shadow: 0 0 0 transparent !important;}
             
+            #tblEasy2MapPinList1 td, tr{border-width:0px;}
+            #tblEasy2MapPinList1 td{padding:3px !important;}
+            #tblEasy2MapPinList1{border-width:0px;}
+            #tblEasy2MapPinList1 img {max-width: none !important;border-radius: 0px !important;border-width:0px;box-shadow: 0 0 0 transparent !important;}
+            
+            #tblEasy2MapPinList2 td, tr{border-width:0px;}
+            #tblEasy2MapPinList2 td{padding:3px !important;}
+            #tblEasy2MapPinList2{border-width:0px;}
+            #tblEasy2MapPinList2 img {max-width: none !important;border-radius: 0px !important;border-width:0px;box-shadow: 0 0 0 transparent !important;}
+            
+            #tblEasy2MapPinList3 td, tr{border-width:0px;}
+            #tblEasy2MapPinList3 td{padding:3px !important;}
+            #tblEasy2MapPinList3{border-width:0px;}
+            #tblEasy2MapPinList3 img {max-width: none !important;border-radius: 0px !important;border-width:0px;box-shadow: 0 0 0 transparent !important;}
+            
+            #tblEasy2MapPinList4 td, tr{border-width:0px;}
+            #tblEasy2MapPinList4 td{padding:3px !important;}
+            #tblEasy2MapPinList4{border-width:0px;}
+            #tblEasy2MapPinList4 img {max-width: none !important;border-radius: 0px !important;border-width:0px;box-shadow: 0 0 0 transparent !important;}
+            
+
             #ulEasy2MapPinList li{
                 border-width:0px;
                 padding:3px !important;

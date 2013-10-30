@@ -15,7 +15,7 @@ var easy2map_mappin_functions = (function() {
             $pinsArray.length = 0;
         $selectedPin = null;
 
-    }
+    };
 
     /*add the selected pin onto the Google map*/
     addPinToMap = function(objPointDetails) {
@@ -26,6 +26,26 @@ var easy2map_mappin_functions = (function() {
             var pinhtml = decodeURIComponent(this.selectedMapPoint.pinhtml);
         } catch (e) {
             pinhtml = this.selectedMapPoint.pinhtml;
+        }
+
+        var showMarkerTitle = jQuery('#markerNameInPopups').prop("checked") ? true : false;
+
+        var markerNameFontSize = jQuery('#markerNameFontSize').val();
+        var setMaxWidthPopups = jQuery('#setMaxWidthPopups').prop("checked") ? true : false;
+        var maxWidthPopups = jQuery('#maxWidthPopups').val();
+
+        var showDirections = jQuery('#directionsInPopups').prop("checked") ? true : false;
+        var directionsLinkTitle = jQuery('#directionsLinkTitle').val();
+        var directionsLinkFontSize = jQuery('#directionsLinkFontSize').val();
+
+        if (showMarkerTitle) {
+            pinhtml = "<p style='font-weight:bold;font-size:" + markerNameFontSize + "em;'>" +
+                    this.selectedMapPoint.title.replace(/\\/gi, '') + "</p>" + pinhtml;
+        }
+
+        if (showDirections) {
+            var directionsURL = "https://maps.google.com/maps?t=m&z=16&daddr=" + this.selectedMapPoint.lattitude + "," + this.selectedMapPoint.longitude;
+            pinhtml = pinhtml + "<a style='display:block;margin:0;margin-top:0.8em;padding:0;text-align:right;font-weight:bold;font-size:" + directionsLinkFontSize + "em;' target='_blank' href='" + directionsURL + "'>" + directionsLinkTitle + "</a>";
         }
 
         var marker = new google.maps.Marker({
@@ -62,7 +82,13 @@ var easy2map_mappin_functions = (function() {
                 pinContent += lines[i];
             }
             var popup = '<p id="e2mpopuphook">' + pinContent + '</p>';
-            infoWindow = new google.maps.InfoWindow();
+
+            if (setMaxWidthPopups === true && parseInt(maxWidthPopups) > 0) {
+                infoWindow = new google.maps.InfoWindow({maxWidth: maxWidthPopups});
+            } else {
+                infoWindow = new google.maps.InfoWindow();
+            }
+
             infoWindow.setContent(popup);
             infoWindow.open(marker.map, marker);
 
@@ -82,12 +108,12 @@ var easy2map_mappin_functions = (function() {
 
 
         });
-    }
+    };
 
     //function used as object for saving details of pins in a loop
     listedMapPin = function(objPinDetails) {
         this.pinDetails = objPinDetails;
-    }
+    };
 
     //set the current pins image
     setPinImage = function(img) {
@@ -103,13 +129,13 @@ var easy2map_mappin_functions = (function() {
                     $pinsArray[i].setIcon(jQuery(img).attr('src'));
             }
         }
-    }
+    };
 
     //show lat/lng of current pin
     showLatLong = function() {
         jQuery('#latLongParent').show();
         jQuery('#divLatLong').html('Position of Pin: ' + $latlng);
-    }
+    };
 
     //update the lat lng of the current pin after it is dragged and dropped
     updateMapPinLocation = function(mapPinID) {
@@ -124,7 +150,7 @@ var easy2map_mappin_functions = (function() {
                 action: "update_map_pin_location"
             }
         });
-    }
+    };
 
     return{
         //prepare the front-end to allow the user to add a new marker to the map
@@ -164,6 +190,7 @@ var easy2map_mappin_functions = (function() {
             jQuery('#btnSavePin').hide();
             jQuery('#latLongParent').hide();
             jQuery('#draggable').attr("src", $mapSettings.DefaultPinImage);
+
             if ($selectedPin)
                 $selectedPin.setAnimation(null);
             $selectedPin = null;
@@ -405,234 +432,342 @@ var easy2map_mappin_functions = (function() {
         //retrieve all points associated with this map
         retrieveMapPoints: function() {
 
+            //jQuery('#pleaseWaitDialog').modal();
+
             var data = {
                 action: 'retrieve_map_points',
                 MapID: $mapID
             };
 
-            //clear all controls for blank slate
-            easy2map_mappin_functions.cancelSaveMapPin();
+            try {
 
-            jQuery.ajax({
-                type: "POST",
-                url: ajaxurl,
-                data: data,
-                dataType: 'json',
-                success: function(returnData) {
+                //clear all controls for blank slate
+                easy2map_mappin_functions.cancelSaveMapPin();
 
-                    jQuery('#tblMapMarkers').show().find('tr').remove();
-                    jQuery('#tblEasy2MapPinList').find('tr').remove();
-                    jQuery('#ulEasy2MapPinList').find('li').remove();
-                    jQuery('#divAddressSearch').show();
+                jQuery.ajax({
+                    type: "POST",
+                    url: ajaxurl,
+                    data: data,
+                    dataType: 'json',
+                    success: function(returnData) {
 
-                    var noPinsFound = false;
+                        jQuery('#tblMapMarkers').show().find('tr').remove();
+                        jQuery('#tblEasy2MapPinList').find('tr').remove();
+                        for (var k = 1; k <= 6; k++) {
+                            jQuery('#tblEasy2MapPinList' + k).find('tr').remove();
+                        }
+                        jQuery('#ulEasy2MapPinList').find('li').remove();
+                        jQuery('#divAddressSearch').show();
 
-                    if (typeof returnData == "undefined" || typeof returnData == "null")
-                        noPinsFound = true;
-                    if (!returnData)
-                        noPinsFound = true;
-                    if (returnData.length == 0)
-                        noPinsFound = true;
+                        var noPinsFound = false;
 
-                    if (noPinsFound) {
-                        //if no pins are found, prompt the user to add a new pin
-                        jQuery('#AddMarker').hide();
-                        jQuery('#SaveMap').hide();
-                        jQuery('#tblAddMapMarker').show();
-                        jQuery('#MarkersListHeading').html('');
-                        return;
-                    } else {
-                        //show all pins associated with the map
-                        jQuery('#AddMarker').show();
-                        jQuery('#SaveMap').show();
-                        jQuery('#tblAddMapMarker').hide();
-                        jQuery('#MarkersListHeading').html('<h6>Map Markers</h6>');
-                    }
+                        if (typeof returnData == "undefined" || typeof returnData == "null")
+                            noPinsFound = true;
+                        if (!returnData)
+                            noPinsFound = true;
+                        if (returnData.length == 0)
+                            noPinsFound = true;
 
-                    if ($markersArray)
-                        $markersArray.length = 0;
-                    clearPinArray();
+                        if (noPinsFound) {
+                            //if no pins are found, prompt the user to add a new pin
+                            jQuery('#AddMarker').hide();
+                            jQuery('#SaveMap').hide();
+                            jQuery('#tblAddMapMarker').show();
+                            jQuery('#MarkersListHeading').html('');
+                            //jQuery('#pleaseWaitDialog').modal('hide');
+                            return;
+                        } else {
+                            //show all pins associated with the map
+                            jQuery('#AddMarker').show();
+                            jQuery('#SaveMap').show();
+                            jQuery('#tblAddMapMarker').hide();
+                            jQuery('#MarkersListHeading').html('<h6>Map Markers</h6>');
+                        }
 
-                    for (var t = 0; t < returnData.length; t++) {
+                        if ($markersArray)
+                            $markersArray.length = 0;
+                        clearPinArray();
 
-                        var arrLatLng = replaceAll(replaceAll(replaceAll(returnData[t].LatLong, ' ', ''), '(', ''), ')', '').split(',');
-                        var objMapPoint = {
-                            lattitude: arrLatLng[0],
-                            longitude: arrLatLng[1],
-                            ID: returnData[t].ID,
-                            title: returnData[t].Title,
-                            icon: returnData[t].ImageURL,
-                            settings: returnData[t].Settings,
-                            pinhtml: returnData[t].MapPinHTML
-                        };
-                        $markersArray.push(new listedMapPin(objMapPoint));
-                    }
+                        for (var t = 0; t < returnData.length; t++) {
 
-                    for (var i = 0; i < $markersArray.length; i++) {
+                            var arrLatLng = replaceAll(replaceAll(replaceAll(returnData[t].LatLong, ' ', ''), '(', ''), ')', '').split(',');
+                            var objMapPoint = {
+                                lattitude: arrLatLng[0],
+                                longitude: arrLatLng[1],
+                                ID: returnData[t].ID,
+                                title: returnData[t].Title,
+                                icon: returnData[t].ImageURL,
+                                settings: returnData[t].Settings,
+                                pinhtml: returnData[t].MapPinHTML
+                            };
+                            $markersArray.push(new listedMapPin(objMapPoint));
+                        }
 
-                        var selectedListItem = $markersArray[i].pinDetails;
-                        addPinToMap(selectedListItem);
+                        for (var i = 0; i < $markersArray.length; i++) {
 
-                        var tr = document.createElement('tr');
-                        document.getElementById('tblMapMarkers').appendChild(tr);
+                            var selectedListItem = $markersArray[i].pinDetails;
 
-                        var imageTd = document.createElement('td');
-                        imageTd.id = "imageTd" + i;
-                        imageTd.align = "center";
-                        var image = document.createElement('img');
-                        image.style.cursor = "pointer";
-                        image.setAttribute("onClick", "easy2map_mappin_functions.editPinItem(" + i + ")");
-                        image.src = selectedListItem.icon;
-                        imageTd.style.minWidth = '30px';
-                        imageTd.style.textAlign = 'center';
-                        imageTd.appendChild(image);
+                            addPinToMap(selectedListItem);
 
-                        var nameTd = document.createElement('td');
-                        nameTd.id = "nameTd" + i;
-                        nameTd.innerHTML = selectedListItem.title.replace(/\\/gi, '');
-                        nameTd.style.width = '80%';
-                        nameTd.style.cursor = "pointer";
-                        nameTd.setAttribute("onClick", "easy2map_mappin_functions.editPinItem(" + i + ")");
+                            var tr = document.createElement('tr');
+                            document.getElementById('tblMapMarkers').appendChild(tr);
 
-                        var editTd = document.createElement('td');
-                        editTd.id = "editTd" + i;
-                        editTd.style.minWidth = '10%';
-                        editTd.style.textAlign = 'center';
-                        var editLink = document.createElement('a');
-                        editLink.innerText = 'edit';
-                        editLink.textContent = 'edit';
-                        editLink.href = '#';
-                        editLink.setAttribute('className', 'smallE2MLink');
-                        editLink.setAttribute('onclick', "easy2map_mappin_functions.editPinItem(" + i + ")");
-                        editTd.appendChild(editLink);
+                            var imageTd = document.createElement('td');
+                            imageTd.id = "imageTd" + i;
+                            imageTd.align = "center";
+                            var image = document.createElement('img');
+                            image.style.cursor = "pointer";
+                            image.setAttribute("onClick", "easy2map_mappin_functions.editPinItem(" + i + ")");
+                            image.src = selectedListItem.icon;
+                            imageTd.style.minWidth = '30px';
+                            imageTd.style.textAlign = 'center';
+                            imageTd.appendChild(image);
 
-                        tr.appendChild(imageTd);
-                        tr.appendChild(nameTd);
-                        tr.appendChild(editTd);
+                            var nameTd = document.createElement('td');
+                            nameTd.id = "nameTd" + i;
+                            nameTd.innerHTML = selectedListItem.title.replace(/\\/gi, '');
+                            nameTd.style.width = '80%';
+                            nameTd.style.cursor = "pointer";
+                            nameTd.setAttribute("onClick", "easy2map_mappin_functions.editPinItem(" + i + ")");
 
-                        //populate the map pin list (if applicable)
-                        var tblPinList = document.getElementById('tblEasy2MapPinList');
+                            var editTd = document.createElement('td');
+                            editTd.id = "editTd" + i;
+                            editTd.style.minWidth = '10%';
+                            editTd.style.textAlign = 'center';
+                            var editLink = document.createElement('a');
+                            editLink.innerText = 'edit';
+                            editLink.textContent = 'edit';
+                            editLink.href = '#';
+                            editLink.setAttribute('className', 'smallE2MLink');
+                            editLink.setAttribute('onclick', "easy2map_mappin_functions.editPinItem(" + i + ")");
+                            editTd.appendChild(editLink);
 
-                        if (tblPinList !== null) {
+                            tr.appendChild(imageTd);
+                            tr.appendChild(nameTd);
+                            tr.appendChild(editTd);
 
-                            var tr2 = document.createElement('tr');
-                            var tr3 = document.createElement('tr');
-                            var tr4 = document.createElement('tr');
+                            //populate the map pin list (if applicable)
+                            var tblPinList = document.getElementById('tblEasy2MapPinList');
 
-                            var imageTd2 = document.createElement('td');
-                            imageTd2.align = "center";
-                            imageTd2.rowSpan = "2";
-                            imageTd2.style.padding = '3px';
-                            imageTd2.style.verticalAlign = "top";
-                            var image2 = document.createElement('img');
-                            image2.src = selectedListItem.icon;
-                            image2.style.cursor = "pointer";
-                            image2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
-                            imageTd2.style.textAlign = 'center';
-                            imageTd2.appendChild(image2);
+                            if (tblPinList !== null) {
 
-                            var nameTd2 = document.createElement('td');
-                            nameTd2.innerHTML = selectedListItem.title.replace(/\\/gi, '');
-                            nameTd2.style.verticalAlign = 'top';
-                            nameTd2.style.fontSize = '1.2em';
-                            nameTd2.style.padding = '3px';
-                            nameTd2.style.fontWeight = 'bold';
-                            nameTd2.style.cursor = "pointer";
-                            nameTd2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
+                                var tr2 = document.createElement('tr');
+                                var tr3 = document.createElement('tr');
+                                var tr4 = document.createElement('tr');
 
-                            var descriptionTd = document.createElement('td');
-                            descriptionTd.style.textAlign = 'left';
-                            descriptionTd.style.padding = '3px';
+                                var imageTd2 = document.createElement('td');
+                                imageTd2.align = "center";
+                                imageTd2.rowSpan = "2";
+                                imageTd2.style.padding = '3px';
+                                imageTd2.style.verticalAlign = "top";
+                                var image2 = document.createElement('img');
+                                image2.src = selectedListItem.icon;
+                                image2.style.cursor = "pointer";
+                                image2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
+                                imageTd2.style.textAlign = 'center';
+                                imageTd2.appendChild(image2);
 
-                            try {
-                                var pinhtml = decodeURIComponent(selectedListItem.pinhtml);
-                            } catch (e) {
-                                pinhtml = selectedListItem.pinhtml;
+                                var nameTd2 = document.createElement('td');
+                                nameTd2.innerHTML = selectedListItem.title.replace(/\\/gi, '');
+                                nameTd2.style.verticalAlign = 'top';
+                                nameTd2.style.fontSize = '1.2em';
+                                nameTd2.style.padding = '3px';
+                                nameTd2.style.fontWeight = 'bold';
+                                nameTd2.style.cursor = "pointer";
+                                nameTd2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
+
+                                var descriptionTd = document.createElement('td');
+                                descriptionTd.style.textAlign = 'left';
+                                descriptionTd.style.padding = '3px';
+
+                                try {
+                                    var pinhtml = decodeURIComponent(selectedListItem.pinhtml);
+                                } catch (e) {
+                                    pinhtml = selectedListItem.pinhtml;
+                                }
+
+                                descriptionTd.innerHTML = pinhtml;
+
+                                var emptyTd = document.createElement('td');
+                                emptyTd.style.height = '10px';
+
+                                tblPinList.appendChild(tr2);
+                                tr2.appendChild(imageTd2);
+                                tr2.appendChild(nameTd2);
+                                tblPinList.appendChild(tr3);
+                                tr3.appendChild(descriptionTd);
+                                tblPinList.appendChild(tr4);
+                                tr4.appendChild(emptyTd);
+
                             }
 
-                            descriptionTd.innerHTML = pinhtml;
+                            for (var k = 1; k <= 6; k++) {
 
-                            var emptyTd = document.createElement('td');
-                            emptyTd.style.height = '10px';
+                                //populate the map pin list (if applicable)
+                                var tblPinList = document.getElementById('tblEasy2MapPinList' + k);
 
-                            tblPinList.appendChild(tr2);
-                            tr2.appendChild(imageTd2);
-                            tr2.appendChild(nameTd2);
-                            tblPinList.appendChild(tr3);
-                            tr3.appendChild(descriptionTd);
-                            tblPinList.appendChild(tr4);
-                            tr4.appendChild(emptyTd);
+                                if (tblPinList !== null) {
+
+                                    if (k > $markersArray.length) {
+                                        var cellWidth = (10 / $markersArray.length) * 10;
+                                    } else {
+                                        var cellWidth = (10 / k) * 10;
+                                    }
+
+                                    cellWidth = cellWidth + '%';
+
+                                    if ((i % k === 0) === true) {
+
+                                        var tr2 = document.createElement('tr');
+                                        var tr3 = document.createElement('tr');
+                                        var tr4 = document.createElement('tr');
+
+                                        tr2.id = 'tblEasy2MapPinList2tr2' + i;
+                                        tr3.id = 'tblEasy2MapPinList2tr3' + i;
+                                        tr4.id = 'tblEasy2MapPinList2tr4' + i;
+
+                                    } else {
+
+                                        var j = i - (i % k);
+
+                                        var tr2 = document.getElementById('tblEasy2MapPinList2tr2' + j);
+                                        var tr3 = document.getElementById('tblEasy2MapPinList2tr3' + j);
+                                        var tr4 = document.getElementById('tblEasy2MapPinList2tr4' + j);
+
+                                    }
+
+                                    var imageTd2 = document.createElement('td');
+                                    imageTd2.align = "center";
+                                    imageTd2.rowSpan = "2";
+                                    imageTd2.style.padding = '4px';
+                                    imageTd2.style.verticalAlign = "top";
+                                    var image2 = document.createElement('img');
+                                    image2.src = selectedListItem.icon;
+                                    image2.style.cursor = "pointer";
+                                    image2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
+                                    imageTd2.style.textAlign = 'center';
+                                    imageTd2.appendChild(image2);
+
+                                    var nameTd2 = document.createElement('td');
+                                    nameTd2.innerHTML = selectedListItem.title.replace(/\\/gi, '');
+                                    nameTd2.style.verticalAlign = 'top';
+                                    nameTd2.style.fontSize = '1.2em';
+                                    nameTd2.style.padding = '4px';
+                                    nameTd2.style.fontWeight = 'bold';
+                                    nameTd2.style.cursor = "pointer";
+                                    nameTd2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
+
+                                    var descriptionTd = document.createElement('td');
+                                    descriptionTd.style.textAlign = 'left';
+                                    descriptionTd.style.verticalAlign = 'top';
+                                    descriptionTd.style.padding = '4px';
+                                    descriptionTd.style.width = cellWidth;
+
+                                    try {
+                                        var pinhtml = decodeURIComponent(selectedListItem.pinhtml);
+                                    } catch (e) {
+                                        pinhtml = selectedListItem.pinhtml;
+                                    }
+
+                                    descriptionTd.innerHTML = pinhtml;
+
+                                    var emptyTd = document.createElement('td');
+                                    //emptyTd.colspan = k;
+                                    emptyTd.style.height = '10px';
+
+                                    if ((i % k === 0) === true) {
+
+                                        tblPinList.appendChild(tr2);
+                                        tr2.appendChild(imageTd2);
+                                        tr2.appendChild(nameTd2);
+                                        tblPinList.appendChild(tr3);
+                                        tr3.appendChild(descriptionTd);
+                                        tblPinList.appendChild(tr4);
+                                        tr4.appendChild(emptyTd);
+
+                                    } else {
+
+                                        tr2.appendChild(imageTd2);
+                                        tr2.appendChild(nameTd2);
+                                        tr3.appendChild(descriptionTd);
+                                        tr4.appendChild(emptyTd);
+                                    }
+                                }
+                            }
+
+                            //populate the map pin list (if applicable)
+                            var ulPinList = document.getElementById('ulEasy2MapPinList');
+
+                            if (ulPinList !== null) {
+
+                                var li = document.createElement('li');
+                                var tbl = document.createElement('table');
+                                var tr2 = document.createElement('tr');
+                                var tr3 = document.createElement('tr');
+
+                                li.style.display = 'table-cell';
+                                li.style.verticalAlign = 'top';
+                                li.style.minWidth = '200px';
+
+                                tbl.cellPadding = '2';
+                                tbl.cellSpacing = '2';
+                                tbl.className = 'tblHorizontalPinList';
+
+                                var imageTd2 = document.createElement('td');
+                                imageTd2.align = "center";
+                                imageTd2.rowSpan = "2";
+                                imageTd2.style.padding = '3px';
+                                imageTd2.style.paddingLeft = '16px';
+                                imageTd2.style.verticalAlign = "top";
+                                var image2 = document.createElement('img');
+                                image2.src = selectedListItem.icon;
+                                image2.style.cursor = "pointer";
+                                image2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
+                                imageTd2.style.textAlign = 'center';
+                                imageTd2.appendChild(image2);
+
+                                var nameTd2 = document.createElement('td');
+                                nameTd2.innerHTML = selectedListItem.title.replace(/\\/gi, '');
+                                nameTd2.style.verticalAlign = 'top';
+                                nameTd2.style.padding = '3px';
+                                nameTd2.style.fontWeight = 'bold';
+                                nameTd2.style.cursor = "pointer";
+                                nameTd2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
+
+                                var descriptionTd = document.createElement('td');
+                                descriptionTd.style.textAlign = 'left';
+                                descriptionTd.style.padding = '3px';
+
+                                try {
+                                    var pinhtml = decodeURIComponent(selectedListItem.pinhtml);
+                                } catch (e) {
+                                    pinhtml = selectedListItem.pinhtml;
+                                }
+
+                                descriptionTd.innerHTML = pinhtml;
+
+                                tbl.appendChild(tr2);
+                                tr2.appendChild(imageTd2);
+                                tr2.appendChild(nameTd2);
+                                tbl.appendChild(tr3);
+                                tr3.appendChild(descriptionTd);
+
+                                li.appendChild(tbl);
+                                ulPinList.appendChild(li);
+
+                            }
+
 
                         }
 
-                        //populate the map pin list (if applicable)
-                        var ulPinList = document.getElementById('ulEasy2MapPinList');
-
-                        if (ulPinList !== null) {
-
-                            var li = document.createElement('li');
-                            var tbl = document.createElement('table');
-                            var tr2 = document.createElement('tr');
-                            var tr3 = document.createElement('tr');
-
-                            li.style.display = 'table-cell';
-                            li.style.verticalAlign = 'top';
-                            li.style.minWidth = '200px';
-                            
-                            tbl.cellPadding = '2';
-                            tbl.cellSpacing = '2';
-                            tbl.className = 'tblHorizontalPinList';
-
-                            var imageTd2 = document.createElement('td');
-                            imageTd2.align = "center";
-                            imageTd2.rowSpan = "2";
-                            imageTd2.style.padding = '3px';
-                            imageTd2.style.paddingLeft = '16px';
-                            imageTd2.style.verticalAlign = "top";
-                            var image2 = document.createElement('img');
-                            image2.src = selectedListItem.icon;
-                            image2.style.cursor = "pointer";
-                            image2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
-                            imageTd2.style.textAlign = 'center';
-                            imageTd2.appendChild(image2);
-
-                            var nameTd2 = document.createElement('td');
-                            nameTd2.innerHTML = selectedListItem.title.replace(/\\/gi, '');
-                            nameTd2.style.verticalAlign = 'top';
-                            nameTd2.style.padding = '3px';
-                            nameTd2.style.fontWeight = 'bold';
-                            nameTd2.style.cursor = "pointer";
-                            nameTd2.setAttribute("onClick", "if (typeof easy2map_functions !== 'undefined') { easy2map_functions.displayPinItem(" + selectedListItem.ID + ")} else { easy2map_mappin_functions.displayPinItem(" + selectedListItem.ID + ")}");
-
-                            var descriptionTd = document.createElement('td');
-                            descriptionTd.style.textAlign = 'left';
-                            descriptionTd.style.padding = '3px';
-
-                            try {
-                                var pinhtml = decodeURIComponent(selectedListItem.pinhtml);
-                            } catch (e) {
-                                pinhtml = selectedListItem.pinhtml;
-                            }
-                            
-                            descriptionTd.innerHTML = pinhtml;
-
-                            tbl.appendChild(tr2);
-                            tr2.appendChild(imageTd2);
-                            tr2.appendChild(nameTd2);
-                            tbl.appendChild(tr3);
-                            tr3.appendChild(descriptionTd);
-
-                            li.appendChild(tbl);
-                            ulPinList.appendChild(li);
-
-                        }
-
-
+                        jQuery('#tblMapMarkers').removeClass('table-striped').addClass('table-striped');
+                        //jQuery('#pleaseWaitDialog').modal('hide');
                     }
+                });
 
-                    jQuery('#tblMapMarkers').removeClass('table-striped').addClass('table-striped');
-                }
-            });
+            } catch (e) {
+                //jQuery('#pleaseWaitDialog').modal('hide');
+            }
         },
         //save map pin to database
         saveMapPin: function() {
@@ -790,12 +925,12 @@ var easy2map_mappin_functions = (function() {
         uploadPinIcon: function() {
 
             var validateFileType = checkFileExtensionSilent(document.getElementById('pinicon'));
-            if (validateFileType != '') {
+            if (validateFileType !== '') {
                 alert('Invalid file, only the following image types are allowed: ' + validateFileType + '. Please upload a different image.');
                 return;
             }
             document.formAddPinIcon.submit();
         }
-    }
+    };
 
 })();

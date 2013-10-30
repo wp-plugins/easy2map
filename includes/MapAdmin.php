@@ -77,7 +77,7 @@ $mapID = $_REQUEST["map_id"];
     jQuery.noConflict();
 
     jQuery(function() {
-        
+
         $geocoder = new google.maps.Geocoder();
         easy2map_map_functions.retrieveMapSettings($mapID);
 
@@ -131,6 +131,12 @@ $mapID = $_REQUEST["map_id"];
 
 <div class="wrap" id="bodyTag">
 
+    <div style="margin:auto;text-align: center;max-width:200px;" class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+        <div style="text-align:center;color:#404040;">
+            <h5>Processing...</h5>
+        </div>
+    </div>
+
     <table style="width:100%;margin-bottom:10px;" cellpadding="2" cellspacing="2">
         <tr><td style="width:34%;vertical-align:top;">
 
@@ -145,9 +151,9 @@ $mapID = $_REQUEST["map_id"];
                            class="input-large" style="display:none;width:300px;margin-bottom:-6px" />
 
                     <!---<?php if (!isset($_REQUEST["no_back"])) { ?>
-                                                                <button onclick="window.location='?page=easy2map&action=viewMaps'" type="button" 
-                                                                        style="margin-left:30px;width:100px;" 
-                                                                        class="btn">Back</button> 
+                                                                    <button onclick="window.location='?page=easy2map&action=viewMaps'" type="button" 
+                                                                            style="margin-left:30px;width:100px;" 
+                                                                            class="btn">Back</button> 
                     <?php } ?>--->
 
             </td>
@@ -331,13 +337,13 @@ $mapID = $_REQUEST["map_id"];
       action="?page=easy2map&action=mapexport&map_id=<?php echo $mapID; ?>"
       method="post">
 </form>
-                
+
 <form name="formExport2" 
       id="formExport2"
       action="?page=easy2map&markers=true&action=mapexport&map_id=<?php echo $mapID; ?>"
       method="post">
 </form>
-                
+
 <form name="formImport" 
       id="formImport"
       action="?page=easy2map&action=mapimport&map_id=<?php echo $mapID; ?>"
