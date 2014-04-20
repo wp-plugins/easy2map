@@ -29,7 +29,10 @@ function some_unique_easy2mapfunction_name_cannot_load() {
             . __('You must deactivate the plugins that are using these conflicting names.') . '</p></div>';
 }
 
-/* * * The following code tests whether or not this plugin can be safely loaded. 
+/* * * 
+ * MERCURIAL TEST
+ * 
+ * The following code tests whether or not this plugin can be safely loaded. 
   If there are no name conflicts, the loader.php is included and the plugin is loaded,
   otherwise, an error is displayed in the manager.
 

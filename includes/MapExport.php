@@ -4,7 +4,7 @@
 if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) {
     echo '<div style="color:#70aa00;width:90%;text-align:center;margin-bottom:5px;font-weight:bold;">Please upgrade to the Ultimate Version to access this functionality</div>';
 } else {
-    $mapID = $_REQUEST["map_id"];
+    $mapID = filter_input(INPUT_GET, 'map_id');
     global $wpdb;
     $mapsTable = $wpdb->prefix . "easy2map_maps";
     $markersTable = $wpdb->prefix . "easy2map_map_points";
@@ -24,7 +24,7 @@ if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) {
         $map->addChild('IsActive', urlencode($result->IsActive));
     }
 
-    if (isset($_REQUEST["markers"])) {
+    if (filter_input(INPUT_GET, 'markers')) {
 
         //retrieve map's markers
         $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM $markersTable WHERE MapID = '%s';", $mapID));
