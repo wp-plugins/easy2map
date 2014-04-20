@@ -281,27 +281,27 @@ var easy2map_map_functions = (function() {
             if (element === 1) {
                 attribute = jQuery('#styleElement' + i).attr('item');
                 value = jQuery('#styleElement' + i).attr('value');
-                if (value.indexOf("px") !== -1){
+                if (value.indexOf("px") !== -1) {
                     type = "px";
-                } else if (value.indexOf("em") !== -1){
+                } else if (value.indexOf("em") !== -1) {
                     type = "em";
-                }                
+                }
                 value = replaceAll(replaceAll(replaceAll(value, "em", ""), "px", ""), "#", "");
             } else if (element === 2) {
                 attribute = jQuery('#styleList' + i).attr('item');
                 value = jQuery('#styleList' + i).attr('value');
-                if (value.indexOf("px") !== -1){
+                if (value.indexOf("px") !== -1) {
                     type = "px";
-                } else if (value.indexOf("em") !== -1){
+                } else if (value.indexOf("em") !== -1) {
                     type = "em";
                 }
                 value = replaceAll(replaceAll(replaceAll(value, "em", ""), "px", ""), "#", "");
             } else if (element === 3) {
                 attribute = jQuery('#styleHeading' + i).attr('item');
                 value = jQuery('#styleHeading' + i).attr('value');
-                if (value.indexOf("px") !== -1){
+                if (value.indexOf("px") !== -1) {
                     type = "px";
-                } else if (value.indexOf("em") !== -1){
+                } else if (value.indexOf("em") !== -1) {
                     type = "em";
                 }
                 value = replaceAll(replaceAll(replaceAll(value, "em", ""), "px", ""), "#", "");
@@ -1068,7 +1068,41 @@ var easy2map_map_functions = (function() {
                 busy();
                 document.formImport.submit();
             }
+        },
+        importFileViaCSV: function() {
+
+            if (parseInt($mapID) === 0) {
+
+                jQuery.when(easy2map_map_functions.saveMap(false, false)).then(
+                        function(data, textStatus, jqXHR) {
+                            window.location = '?page=easy2map&action=mapimportcsv&map_id=' + $mapID;
+                        });
+            } else {
+                window.location = '?page=easy2map&action=mapimportcsv&map_id=' + $mapID;
+            }
+
+        },
+        //verify that the import file is a valid XML document
+        uploadImportCSV: function() {
+
+            if (document.getElementById('csvfile').value === "")
+                return;
+            var csvContinue = true;
+
+            var validateFileType = checkFileExtensionSilent(document.getElementById('csvfile'));
+            if (validateFileType !== '') {
+                alert('Invalid CSV file.');
+                csvContinue = false;
+                return;
+            }
+
+            if (csvContinue === true) {
+                busy();
+                document.formImport3.submit();
+            }
         }
+
     };
+
 
 })();

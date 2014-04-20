@@ -43,11 +43,11 @@
             <td style="font-weight:bold;">Administer markers' popup features, such as 'Directions' link</td></tr>
 
         <?php
-        if (isset($_POST['easy2map_key']) && isset($_POST['action']) && $_POST['action'] == "update_easy2mapkey") {
-            if (wp_verify_nonce($_POST['easy2map_key'], 'update-options')) {
+        if (filter_input(INPUT_POST,'easy2map_key') && filter_input(INPUT_POST, 'action') && strcasecmp(filter_input(INPUT_POST, 'action'), "update_easy2mapkey") == 0) {
+            if (wp_verify_nonce(filter_input(INPUT_POST,'easy2map_key'), 'update-options')) {
 
-                if (self::easy2MapCodeValidator($_POST['code'])) {
-                    update_option('easy2map-key', $_POST['code']);
+                if (self::easy2MapCodeValidator(filter_input(INPUT_POST,'code'))) {
+                    update_option('easy2map-key', filter_input(INPUT_POST,'code'));
 
 
                     echo '<tr><td colspan="2" style="text-align:center;vertical-align:middle;height:40px;font-size:1.3em;color:#70aa00;font-weight:bold;">

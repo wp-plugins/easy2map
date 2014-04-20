@@ -6,7 +6,7 @@
 if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) {
     die('<div style="color:#70aa00;width:90%;text-align:center;margin-bottom:5px;font-weight:bold;">Please upgrade to the Ultimate Version to access this functionality</div>');
 }
-$mapID = $_REQUEST["map_id"];
+$mapID = filter_input(INPUT_GET, 'map_id');
 global $wpdb;
 global $current_user;
 $current_user = wp_get_current_user();
@@ -23,7 +23,7 @@ if (is_uploaded_file($_FILES["xmlfile"]['tmp_name'])) {
         if (isset($xmlObject->map)) {
 
             //only import map settings if required
-            if (!isset($_REQUEST["markersonly"])) {
+            if (!filter_input(INPUT_GET, 'markersonly')) {
 
                 if (intval($mapID) === 0) {
 
@@ -40,7 +40,17 @@ if (is_uploaded_file($_FILES["xmlfile"]['tmp_name'])) {
                         MapHTML,
                         IsActive
                     ) 
-                    VALUES ('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP, '%s', '%s', '%s', '%s', 0);", $xmlObject->map->TemplateID, $xmlObject->map->MapName, str_replace('index.php', '', easy2map_get_plugin_url('/index.php')) . "images/map_pins/pins/111.png", urldecode($xmlObject->map->Settings), urldecode($xmlObject->map->CSSValues), urldecode($xmlObject->map->CSSValuesList), urldecode($xmlObject->map->CSSValuesHeading), urldecode($xmlObject->map->MapHTML));
+                    VALUES ('%s', '%s', '%s', '%s', CURRENT_TIMESTAMP, 
+                    '%s', '%s', '%s', '%s', 0);", 
+                            $xmlObject->map->TemplateID, 
+                            $xmlObject->map->MapName, 
+                            str_replace('index.php', '', 
+                                    easy2map_get_plugin_url('/index.php')) . "images/map_pins/pins/111.png", 
+                            urldecode($xmlObject->map->Settings), 
+                            urldecode($xmlObject->map->CSSValues), 
+                            urldecode($xmlObject->map->CSSValuesList),
+                            urldecode($xmlObject->map->CSSValuesHeading), 
+                            urldecode($xmlObject->map->MapHTML));
 
                     if (!$wpdb->query($SQL)) {
                         die("Error!");
@@ -89,7 +99,11 @@ if (is_uploaded_file($_FILES["xmlfile"]['tmp_name'])) {
                     Title,
                     PinImageURL,
                     DetailsHTML)
-                    VALUES (%s, '%s', '%s', '%s', '%s', '%s');", $mapID, $current_user->ID, $marker->LatLong, $marker->Title, $pinImage, urldecode(urldecode($marker->DetailsHTML)));
+                    VALUES (%s, '%s', '%s', '%s', '%s', '%s');", 
+                            $mapID, $current_user->ID, 
+                            $marker->LatLong, 
+                            $marker->Title, 
+                            $pinImage, urldecode(urldecode($marker->DetailsHTML)));
 
                     $wpdb->query($SQL);
                 }
@@ -108,7 +122,7 @@ if (is_uploaded_file($_FILES["xmlfile"]['tmp_name'])) {
     <form name="formImport" 
           enctype="multipart/form-data" 
           id="formImport"
-          <?php if (!isset($_REQUEST["markersonly"])) { ?>
+          <?php if (!filter_input(INPUT_GET, 'markersonly')) { ?>
           action="?page=easy2map&action=mapimport&map_id=<?php echo $mapID; ?>"
           <?php } else { ?>
           action="?page=easy2map&action=mapimport&markersonly=true&map_id=<?php echo $mapID; ?>"

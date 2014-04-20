@@ -350,19 +350,19 @@ class Easy2Map_MapPinFunctions {
 class Easy2Map_AJAXFunctions {
 
     public static function Delete_map_point_callback() {
-        die(json_encode(Easy2Map_MapPinFunctions::Delete_map_point($_REQUEST["MapPointID"])));
+        die(json_encode(Easy2Map_MapPinFunctions::Delete_map_point(filter_input(INPUT_POST, "MapPointID"))));
     }
 
     public static function Retrieve_map_pins_callback() {
-        die(json_encode(Easy2Map_MapPinFunctions::Retrieve_map_pins($_REQUEST["MapID"])));
+        die(json_encode(Easy2Map_MapPinFunctions::Retrieve_map_pins(filter_input(INPUT_POST, "MapID"))));
     }
 
     public static function Save_map_polylines_callback() {
-        die(json_encode(Easy2Map_MapFunctions::Save_map_polylines($_REQUEST["mapID"], urldecode($_REQUEST['PolyLines']))));
+        die(json_encode(Easy2Map_MapFunctions::Save_map_polylines(filter_input(INPUT_POST, "mapID"), urldecode(filter_input(INPUT_POST, 'PolyLines')))));
     }
 
     public static function Save_default_pin_image_callback() {
-        die(json_encode(Easy2Map_MapFunctions::Save_default_pin_image($_REQUEST["MapID"], urldecode($_REQUEST['PinImage']))));
+        die(json_encode(Easy2Map_MapFunctions::Save_default_pin_image(filter_input(INPUT_POST, "MapID"), urldecode(filter_input(INPUT_POST, 'PinImage')))));
     }
 
     public static function Save_map_pin() {
@@ -370,7 +370,7 @@ class Easy2Map_AJAXFunctions {
     }
 
     public static function Update_map_pin_location() {
-        die(json_encode(Easy2Map_MapPinFunctions::Update_map_pin_location($_REQUEST["latLong"], $_REQUEST['mapPointID'])));
+        die(json_encode(Easy2Map_MapPinFunctions::Update_map_pin_location(filter_input(INPUT_POST, "latLong"), filter_input(INPUT_POST, 'mapPointID'))));
     }
 
     public static function Save_map() {
@@ -378,7 +378,7 @@ class Easy2Map_AJAXFunctions {
     }
 
     public static function Save_map_name() {
-         die(json_encode(Easy2Map_MapFunctions::Save_map_name($_REQUEST["mapID"], $_REQUEST['mapName'])));
+         die(json_encode(Easy2Map_MapFunctions::Save_map_name(filter_input(INPUT_POST, "mapID"), filter_input(INPUT_POST, 'mapName'))));
     }
 
     public static function Retrieve_pin_icons_callback() {
@@ -456,6 +456,34 @@ class Easy2Map_AJAXFunctions {
     public static function Retrieve_mappin_templates_callback() {
         die(json_encode(Easy2Map_MapPinFunctions::Retrieve_mappin_templates()));
     }
+	
+	public static function Get_csv_coords(){
+		if ($_FILES[csv][size] > 0) { 
+
+    //get the csv file 
+    $file = $_FILES[csv][tmp_name]; 
+    $handle = fopen($file,"r"); 
+     
+    //loop through the csv file and insert into database 
+    do { 
+        if ($data[0]) { 
+            mysql_query("INSERT INTO wp_easy2map_map_points (MapID, LatLong, Title, PinImageURL, DetailsHTML) VALUES 
+                ( 
+                    '".addslashes($data[0])."', 
+                    '".addslashes($data[1])."', 
+                    '".addslashes($data[2])."' 
+                ) 
+            "); 
+        } 
+    } while ($data = fgetcsv($handle,1000,",","'")); 
+    // 
+
+    //redirect 
+    header('Location: import.php?success=1'); die; 
+
+} 
+
+		}
 
 }
 

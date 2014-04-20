@@ -368,7 +368,12 @@ var easy2map_mappin_functions = (function() {
                         image.style.cursor = "pointer";
                         image.setAttribute("onClick", "easy2map_mappin_functions.setMapPinImage(this)");
 
+                        var arrImage = returnData[i].split("/");
+                        if (arrImage.length > 0) {
+                            image.setAttribute('title', arrImage[arrImage.length - 1]);
+                        }
                         image.src = returnData[i];
+
                         imageTd.appendChild(image);
                         tr.appendChild(imageTd);
                         iCounter += 1;

@@ -32,9 +32,9 @@
 
 <script>
 
-    function areYouSure(mapID){
-        jQuery('#btnDeleteMap').click(function(){
-            window.location='?page=easy2map&action=deletemap&map_id=' + mapID;
+    function areYouSure(mapID) {
+        jQuery('#btnDeleteMap').click(function() {
+            window.location = '?page=easy2map&action=deletemap&map_id=' + mapID;
         });
         jQuery('#are_you_sure').modal();
     }
@@ -45,29 +45,29 @@
 global $wpdb;
 $mapsTable = $wpdb->prefix . "easy2map_maps";
 
-if (isset($_POST["mapName"])) {
+if (filter_input(INPUT_POST, 'mapName')) {
     Easy2Map_AJAXFunctions::Save_map();
 }
 
-if (isset($_GET["action"]) && strcasecmp($_GET["action"], "deletemap") == 0 && isset($_GET["map_id"])){
-    Easy2Map_MapFunctions::Delete_map($_GET["map_id"]);
-}
+if (filter_input(INPUT_GET, 'action') && strcasecmp(filter_input(INPUT_GET, 'action'), "deletemap") == 0 && filter_input(INPUT_GET, 'map_id')) {
 
+    Easy2Map_MapFunctions::Delete_map(filter_input(INPUT_GET, 'map_id'));
+}
 ?>
 
 <div class="control-group mcm-control-group" style="margin-left:auto;margin-right:auto;width:90%;margin-top:10px;border:1px solid #EBEBEB;padding:5px;border-radius:5px;background:url(<?php echo easy2map_get_plugin_url('/images/e2m_favicon3030.png'); ?>) no-repeat;background-color:#EBEBEB;background-position: 1px 3px;">
     <h5 style="line-height:6px;margin-left:25px;">
         My Easy2Maps
         <a style="margin-top:-10px;float:right;margin-right:5%;font-size:20px;" href="?page=easy2map&action=edit&map_id=0">
-                            <img alt="easy2mapwordpress131723" src="<?php echo easy2map_get_plugin_url('/images/e2m_icon_add.png'); ?>" style="margin-right:10px;"> Create New Map</a>
-                            
-        <?php if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) { ?>
+            <img alt="easy2mapwordpress131723" src="<?php echo easy2map_get_plugin_url('/images/e2m_icon_add.png'); ?>" style="margin-right:10px;"> Create New Map</a>
+
+<?php if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) { ?>
             <a style="float:right;margin-right:10%;font-size:1.25em;color:#70aa00;" href="?page=easy2map&action=activation">Upgrade to Easy2Map Ultimate Version Here</a>
-        <?php } else {?>
+        <?php } else { ?>
             <span style="float:right;margin-right:10%;font-size:1.3em;color:#70aa00;margin-top:-5px;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>" style="margin-right:5px;" />Easy2Map Ultimate Version</span>
-        <?php }?>                     
-                            
-     
+        <?php } ?>                     
+
+
     </h5>
 </div>
 
@@ -82,39 +82,40 @@ if (isset($_GET["action"]) && strcasecmp($_GET["action"], "deletemap") == 0 && i
             <th style="text-align:center"><b>Delete Map</b></th>
         </tr>
 
-        <?php $results = $wpdb->get_results("SELECT * FROM $mapsTable WHERE IsActive = 1 ORDER BY LastInvoked DESC;");
-        //if (count($results) == 0) header('Location: ?page=easy2map&action=edit&map_id=0&no_back=true'); 
+<?php
+$results = $wpdb->get_results("SELECT * FROM $mapsTable WHERE IsActive = 1 ORDER BY LastInvoked DESC;");
+//if (count($results) == 0) header('Location: ?page=easy2map&action=edit&map_id=0&no_back=true'); 
 
-        foreach ($results as $result) {
-            $id = $result->ID;
-            $name = stripslashes($result->MapName);
-            
-            $xmlSettings = simplexml_load_string($result->Settings);
-            $xmlAttrs = $xmlSettings->attributes();
-            ?>
+foreach ($results as $result) {
+    $id = $result->ID;
+    $name = stripslashes($result->MapName);
+
+    $xmlSettings = simplexml_load_string($result->Settings);
+    $xmlAttrs = $xmlSettings->attributes();
+    ?>
             <tr id="trMap<?php echo $id; ?>">
                 <td align="center" style="text-align:center">
-                    
+
                     <img style="border:1px solid #EBEBEB" 
-                         src="http://maps.googleapis.com/maps/api/staticmap?center=<?php echo $xmlAttrs['lattitude']. ','. $xmlAttrs['longitude']; ?>&zoom=<?php echo $xmlAttrs['zoom']; ?>&size=80x80&maptype=roadmap&sensor=false"></img>
-            
-                    
+                         src="http://maps.googleapis.com/maps/api/staticmap?center=<?php echo $xmlAttrs['lattitude'] . ',' . $xmlAttrs['longitude']; ?>&zoom=<?php echo $xmlAttrs['zoom']; ?>&size=80x80&maptype=roadmap&sensor=false"></img>
+
+
                 </td>
                 <td style="width:30%;font-size:16px;font-weight:bold;"><?php echo $name; ?></td>
                 <td nowrap><p nowrap style="text-align:center;font-size:1.2em;color:#033c90;padding:5px;background-color:#e7e7e7;border:1px solid #5b86c5;border-radius:3px;width:180px;">[easy2map id="<?php echo $id; ?>"]</p>
                 </td>
                 <td style="width:15%;text-align:center;vertical-align:middle;"><a href="?page=easy2map&action=edit&map_id=<?php echo $id; ?>">
-                    <img src="<?php echo easy2map_get_plugin_url('/images/e2m_icon_edit.png'); ?>"></a></td>
+                        <img src="<?php echo easy2map_get_plugin_url('/images/e2m_icon_edit.png'); ?>"></a></td>
                 <td style="width:15%;text-align:center;vertical-align:middle;"><a onclick="areYouSure(<?php echo $id; ?>);" href="#"><img src="<?php echo easy2map_get_plugin_url('/images/e2m_icon_delete.png'); ?>"></a></td>
             </tr>
-            <?php
-        }
-        ?>
+    <?php
+}
+?>
     </table>
-    <?php if (count($results) > 0) { ?>
-    <a style="float:left;margin-left:5%;font-size:1.1em;font-weight:bold" href="http://wordpress.org/support/view/plugin-reviews/easy2map#postform" target="_blank">Rate this plugin on WordPress</a>
-    <a style="float:right;margin-right:5%;font-size:1.1em;font-weight:bold" href="http://easy2map.com/contactUs.php" target="_blank">Your comments and feedback are always welcome</a>
-    <?php } ?>
+        <?php if (count($results) > 0) { ?>
+        <a style="float:left;margin-left:5%;font-size:1.1em;font-weight:bold" href="http://wordpress.org/support/view/plugin-reviews/easy2map#postform" target="_blank">Rate this plugin on WordPress</a>
+        <a style="float:right;margin-right:5%;font-size:1.1em;font-weight:bold" href="http://easy2map.com/contactUs.php" target="_blank">Your comments and feedback are always welcome</a>
+<?php } ?>
 </div>
 
 <div id="are_you_sure" style="width:600px" 

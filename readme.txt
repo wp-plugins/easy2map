@@ -4,8 +4,8 @@ Contributors: stevenellis
 Tags: google maps, store finder, online maps, store locater, google, dealer locator, map plugins, mapping plugins, dealer locater, zip code search, shop locator, shop finder, zipcode, location finder, places, maps, mapping, mapper, blog maps, blogging maps, travel maps, plugin, posts, post, page, coordinates, latitude, longitude, geo, geocoding, shops, ecommerce, e-commerce, business locations, bing map, bing, yahoo maps, yahoo, mapping, retail
 
 Requires at least: 3.0.1
-Tested up to: 3.7.1
-Stable tag: 1.2.0
+Tested up to: 3.9
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -109,7 +109,7 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 = 1.1.8 =
 * WordPress version 3.6 loading issue fixed.
 
-= 2.0.1 =
+= 1.2.0 =
 * Plugin's database tables set to utf8 charset (to support all character sets)
 * 8 new map templates added (Ultimate Version).
 * Ability to add marker name to popups (Ultimate Version).
@@ -117,6 +117,10 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 * Ability to add set man width of popups (Ultimate Version).
 * Ability to add set 'pixel' and 'em' font size, widths etc.
 * General fixes.
+
+= 1.2.1 =
+* WordPress version 3.9 compatability.
+* Ability to import map markers from CSV file.
 
 == Upgrade Notice ==
 
@@ -143,11 +147,16 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 = 1.1.8 =
 * WordPress version 3.6 loading issue fixed.
 
-= 2.0.1 =
+= 1.2.0 =
 * Plugin's database tables set to utf8 charset (to support all character sets)
 * 8 new map templates added (Ultimate Version).
 * Ability to add marker name to popups (Ultimate Version).
 * Ability to add directions link to popups (Ultimate Version).
-* Ability to add set man width of popups (Ultimate Version).
+* Ability to add set width of popups (Ultimate Version).
 * Ability to add set 'pixel' and 'em' font size, widths etc.
 * General fixes.
+
+= 1.2.1 =
+* WordPress version 3.9 compatability.
+* Ability to import map markers from CSV file.
+
