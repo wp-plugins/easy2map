@@ -121,6 +121,7 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 = 1.2.1 =
 * WordPress version 3.9 compatability.
 * Ability to import map markers from CSV file.
+* General fixes.
 
 == Upgrade Notice ==
 
@@ -159,4 +160,5 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 = 1.2.1 =
 * WordPress version 3.9 compatability.
 * Ability to import map markers from CSV file.
+* General fixes.
 
