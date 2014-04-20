@@ -6,7 +6,7 @@ class Easy2Map {
     const plugin_name = 'Easy2Map';
     const min_php_version = '5.0';
     const min_wp_version = '3.0';
-    const e2m_version = '2.0.1';
+    const e2m_version = '1.2.2';
 
     // Used to uniquely identify this plugin's menu page in the WP manager
     const admin_menu_slug = 'easy2map';
@@ -47,6 +47,7 @@ class Easy2Map {
         //$src = plugins_url('css/easy2map.css', dirname(__FILE__));
         //wp_register_style('easy2map', $src);
         //wp_enqueue_style('easy2map');
+        //MERCURIAL COMMIT TEST
         //}
     }
 
@@ -597,6 +598,8 @@ class Easy2Map {
             include('MapExport.php');
         } else if (isset($_GET["action"]) && strcasecmp($_GET["action"], "mapimport") == 0 && isset($_GET["map_id"])) {
             include('MapImport.php');
+		} else if (isset($_GET["action"]) && strcasecmp($_GET["action"], "mapimportcsv") == 0 && isset($_GET["map_id"])) {
+            include('MapImportCSV.php');
         } else if (isset($_GET["action"]) && strcasecmp($_GET["action"], "activation") == 0) {
             include('Validation.php');
         } else {
