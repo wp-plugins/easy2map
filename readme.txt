@@ -5,7 +5,7 @@ Tags: google maps, store finder, online maps, store locater, google, dealer loca
 
 Requires at least: 3.0.1
 Tested up to: 4.1.1
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,7 +122,7 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 * WordPress version 3.9 compatability.
 * Ability to import map markers from CSV file.
 
-= 1.2.2 =
+= 1.2.4 =
 * WordPress version 4.1.1 compatability.
 * Map styling functionality added (Ultimate Version).
 * Ability to import map markers from CSV file using addresses (previously only supported latitude and longitude) (Ultimate Version).
@@ -165,7 +165,7 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 * WordPress version 3.9 compatability.
 * Ability to import map markers from CSV file.
 
-= 1.2.3 =
+= 1.2.4 =
 * WordPress version 4.1.1 compatability.
 * Map styling functionality added (Ultimate Version).
 * Ability to import map markers from CSV file using addresses (previously only supported latitude and longitude) (Ultimate Version).
