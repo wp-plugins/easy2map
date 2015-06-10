@@ -4,8 +4,8 @@ Contributors: stevenellis
 Tags: google maps, store finder, online maps, store locater, google, dealer locator, map plugins, mapping plugins, dealer locater, zip code search, shop locator, shop finder, zipcode, location finder, places, maps, mapping, mapper, blog maps, blogging maps, travel maps, plugin, posts, post, page, coordinates, latitude, longitude, geo, geocoding, shops, ecommerce, e-commerce, business locations, bing map, bing, yahoo maps, yahoo, mapping, retail
 
 Requires at least: 3.0.1
-Tested up to: 3.9
-Stable tag: 1.2.2
+Tested up to: 4.1.1
+Stable tag: 1.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,7 +74,7 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 5. Upload your own marker icons, to tailor your map to your exact requirements.
 6. Resize your map to a preset size, or to a custom size (pixel or percentage).
 7. Add multiple markers to your map.
-8. Choose from 6 different map templates; edit CSS of maps; import and export maps and markers (Easy2Map Ultimate Version).
+8. Choose from several great-looking map templates; edit CSS of maps; import and export maps and markers (Easy2Map Ultimate Version).
 9. An example of one of the map templates available (Easy2Map Ultimate Version) .
 10. Display a list of markers alongside your map (Easy2Map Ultimate Version).
 11. An example of a color CSS editor for changing the map's background color (Easy2Map Ultimate Version).
@@ -165,7 +165,7 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 * WordPress version 3.9 compatability.
 * Ability to import map markers from CSV file.
 
-= 1.2.2 =
+= 1.2.3 =
 * WordPress version 4.1.1 compatability.
 * Map styling functionality added (Ultimate Version).
 * Ability to import map markers from CSV file using addresses (previously only supported latitude and longitude) (Ultimate Version).
