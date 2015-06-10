@@ -118,10 +118,14 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 * Ability to add set 'pixel' and 'em' font size, widths etc.
 * General fixes.
 
-= 1.2.2 =
+= 1.2.1 =
 * WordPress version 3.9 compatability.
 * Ability to import map markers from CSV file.
-* General fixes.
+
+= 1.2.2 =
+* WordPress version 4.1.1 compatability.
+* Map styling functionality added (Ultimate Version).
+* Ability to import map markers from CSV file using addresses (previously only supported latitude and longitude) (Ultimate Version).
 
 == Upgrade Notice ==
 
@@ -157,8 +161,12 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 * Ability to add set 'pixel' and 'em' font size, widths etc.
 * General fixes.
 
-= 1.2.2 =
+= 1.2.1 =
 * WordPress version 3.9 compatability.
 * Ability to import map markers from CSV file.
-* General fixes.
+
+= 1.2.2 =
+* WordPress version 4.1.1 compatability.
+* Map styling functionality added (Ultimate Version).
+* Ability to import map markers from CSV file using addresses (previously only supported latitude and longitude) (Ultimate Version).
 

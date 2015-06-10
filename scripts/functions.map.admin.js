@@ -117,11 +117,6 @@ var easy2map_map_functions = (function() {
 
         displayGoogleMap();
 
-        //google.maps.event.addListenerOnce($map, 'idle', function(){
-        //    //once the map is loaded, retrieve the map pins
-        //    easy2map_mappin_functions.retrieveMapPoints();
-        //});
-
         google.maps.event.addDomListener(window, 'load', easy2map_mappin_functions.retrieveMapPoints());
 
     };
@@ -199,9 +194,24 @@ var easy2map_map_functions = (function() {
         var $mapTypeControl_position = google.maps.ControlPosition.TOP_LEFT;
         var $latlng = new google.maps.LatLng($lat, $lng);
 
+        //theme
+        var $mapTheme = parseInt(jQuery('#MapThemeName').val());
+
+        var $styles = [];
+        for (var t = 0; t < $arrThemes.length; t++) {
+            
+            if($mapTheme == parseInt($arrThemes[t].ID)){
+                if ($arrThemes[t].Styles != null && $arrThemes[t].Styles.length > 0){
+                    $styles = jQuery.parseJSON($arrThemes[t].Styles);
+                    break;
+                }
+            }
+        }
+
         var mapOptions = {
             zoom: $zoom,
             center: $latlng,
+            styles: $styles,
             mapTypeId: $mapType,
             mapTypeControl: false,
             clusterpins: false,
@@ -261,6 +271,41 @@ var easy2map_map_functions = (function() {
                 }
 
                 easy2map_map_functions.changeMapTemplate();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                alert(errorThrown);
+            }
+        });
+
+    };
+
+    //retrieve all map themes from the database
+    retrieveMapThemes = function(mapID, themeID, templateID) {
+
+        jQuery.ajax({
+            type: 'POST',
+            url: ajaxurl,
+            dataType: 'json',
+            data: {
+                mapID: mapID,
+                action: "retrieve_map_themes"
+            },
+            success: function(arrThemes) {
+
+                $arrThemes = arrThemes;
+
+                for (var t = 0; t < arrThemes.length; t++) {
+                    jQuery("#MapThemeName").append("<option value='" + arrThemes[t].ID + "'>" + arrThemes[t].ThemeName + "</option>");
+                }
+
+                if (themeID == null || parseInt(themeID) === 0) {
+                    //this is a new map - set it to the first template in the list
+                    jQuery("#MapThemeName").val(arrThemes[0].ID);
+                } else {
+                    jQuery("#MapThemeName").val(themeID);
+                }
+
+                retrieveMapTemplates(mapID, templateID);
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 alert(errorThrown);
@@ -591,8 +636,14 @@ var easy2map_map_functions = (function() {
             }
             refreshExampleMap(true);
         },
-        changeMapType: function() {
 
+
+        //change a map's theme
+        changeMapTheme: function() {
+            refreshExampleMap(true);
+        },
+
+        changeMapType: function() {
 
             var $mapType = jQuery('#mapType').val().toUpperCase();
             if ($mapType === "ROADMAP")
@@ -724,7 +775,8 @@ var easy2map_map_functions = (function() {
                     jQuery('#directionsLinkFontSize').val(parseInt(settings.directionsLinkFontSize) > 0 ? settings.directionsLinkFontSize : 1);
 
                     jQuery('#mapEditPencil').show();
-                    retrieveMapTemplates(mapID, $mapSettings.TemplateID);
+                    if ($mapSettings.ThemeID == null) $mapSettings.ThemeID = 1;
+                    retrieveMapThemes(mapID, $mapSettings.ThemeID, $mapSettings.TemplateID);
 
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -937,9 +989,24 @@ var easy2map_map_functions = (function() {
             else
                 $mapType = google.maps.MapTypeId.ROADMAP;
 
+            //theme
+            var $mapTheme = parseInt(jQuery('#MapThemeName').val());
+            var $styles = [];
+            for (var t = 0; t < $arrThemes.length; t++) {
+                
+                if($mapTheme == parseInt($arrThemes[t].ID)){
+                    if ($arrThemes[t].Styles != null && $arrThemes[t].Styles.length > 0){
+                        $styles = jQuery.parseJSON($arrThemes[t].Styles);
+                        break;
+                    }
+                }
+
+            }
+
             var mapOptions = {
                 lattitude: $lat,
                 longitude: $lng,
+                styles: $styles,
                 zoom: $zoom,
                 mapType: $mapType,
                 backgroundColor: 'FFFFFF',
@@ -995,7 +1062,8 @@ var easy2map_map_functions = (function() {
                     mapCSSXML: encodeURIComponent(retrieveMapCSS()),
                     listCSSXML: encodeURIComponent(retrieveListCSS()),
                     headingCSSXML: encodeURIComponent(retrieveHeadingCSS()),
-                    mapHTML: encodeURIComponent(HTMLToSave)
+                    mapHTML: encodeURIComponent(HTMLToSave),
+                    mapThemeName: jQuery('#MapThemeName').val()
                 },
                 success: function(mapID) {
                     if (redirect) {
@@ -1082,6 +1150,19 @@ var easy2map_map_functions = (function() {
             }
 
         },
+        importFileViaCSV2: function() {
+
+            if (parseInt($mapID) === 0) {
+
+                jQuery.when(easy2map_map_functions.saveMap(false, false)).then(
+                        function(data, textStatus, jqXHR) {
+                            window.location = '?page=easy2map&action=mapimportcsv2&map_id=' + $mapID;
+                        });
+            } else {
+                window.location = '?page=easy2map&action=mapimportcsv2&map_id=' + $mapID;
+            }
+
+        },
         //verify that the import file is a valid XML document
         uploadImportCSV: function() {
 
@@ -1101,6 +1182,7 @@ var easy2map_map_functions = (function() {
                 document.formImport3.submit();
             }
         }
+
 
     };
 

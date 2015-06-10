@@ -54,6 +54,34 @@ class Easy2Map_MapFunctions {
         return $returnValue;
     }
 
+
+    public static function Retrieve_map_themes($mapID) {
+
+        global $wpdb;
+        $mapsTable = $wpdb->prefix . "easy2map_maps";
+        $themesTable = $wpdb->prefix . "easy2map_themes";
+        $returnValue = array();
+
+        $themes = $wpdb->get_results($wpdb->prepare("SELECT A.ID, 
+            IFNULL(B.ThemeID,1) AS SelectedTheme,
+            A.ThemeName
+            , A.Styles
+            FROM $themesTable A
+            LEFT JOIN $mapsTable B ON (A.ID = B.ThemeID AND B.ID = %s)
+            ORDER BY A.ID;", $mapID));
+
+        foreach ($themes as $theme) {
+
+            $mapTheme= new e2mMapTheme($theme->ID, 
+                    $theme->ThemeName, 
+                    $theme->Styles);
+
+            array_push($returnValue, $mapTheme);
+        }
+
+        return $returnValue;
+    }
+
     public static function Save_map_polylines($mapID, $PolyLines) {
 
         global $wpdb;
@@ -77,6 +105,7 @@ class Easy2Map_MapFunctions {
 
         global $wpdb;
         $mapTable = $wpdb->prefix . "easy2map_maps";
+        $themesTable = $wpdb->prefix . "easy2map_themes";
 
         if (intval($mapID) === 0) {
 
@@ -88,13 +117,15 @@ class Easy2Map_MapFunctions {
             return $settings;
         }
 
-        $mapSettings = $wpdb->get_results($wpdb->prepare("SELECT * 
-        FROM $mapTable 
-        WHERE ID = '%s';", $mapID));
+        $mapSettings = $wpdb->get_results($wpdb->prepare("SELECT $mapTable.*, 
+        IFNULL($themesTable.Styles,'') AS Styles
+        FROM $mapTable
+        LEFT JOIN $themesTable ON $mapTable.ThemeID = $themesTable.ID 
+        WHERE $mapTable.ID = '%s';", $mapID));
 
         foreach ($mapSettings as $row) {
 
-            $settings = new e2mMapItem($row->ID, $row->TemplateID, $row->MapName, $row->DefaultPinImage, $row->Settings, $row->CSSValues, $row->CSSValuesList, $row->CSSValuesHeading, $row->PolyLines);
+            $settings = new e2mMapItem($row->ID, $row->TemplateID, $row->MapName, $row->DefaultPinImage, $row->Settings, $row->CSSValues, $row->CSSValuesList, $row->CSSValuesHeading, $row->PolyLines, $row->ThemeID, $row->Styles);
 
             return $settings;
         }
@@ -139,7 +170,8 @@ class Easy2Map_MapFunctions {
                     CSSValuesList = '%s',
                     CSSValuesHeading = '%s',
                     MapHTML = '%s',
-                    IsActive = 1
+                    IsActive = 1,
+                    ThemeID = '%s'
                 WHERE ID = %s;", 
                     $Items['mapTemplateName'], 
                     $Items['mapName'], 
@@ -147,7 +179,9 @@ class Easy2Map_MapFunctions {
                     urldecode($Items["mapCSSXML"]), 
                     urldecode($Items["listCSSXML"]), 
                     urldecode($Items["headingCSSXML"]), 
-                    urldecode($Items["mapHTML"]), $mapID));
+                    urldecode($Items["mapHTML"]), 
+                    $Items['mapThemeName'], 
+                    $mapID));
         } else {
 
             //this is a map insert
@@ -163,16 +197,18 @@ class Easy2Map_MapFunctions {
                 CSSValuesList,
                 CSSValuesHeading,
                 MapHTML,
-                IsActive
+                IsActive,
+                ThemeID
             ) VALUES ('%s', '%s', '%s', '%s', 
-                    CURRENT_TIMESTAMP, '%s', '%s', '%s', '%s', '%s', 0);", 
+                    CURRENT_TIMESTAMP, '%s', '%s', '%s', '%s', '%s', 0, '%s');", 
                     $Items['mapTemplateName'], 
                     $Items['mapName'], str_replace('index.php', '', easy2map_get_plugin_url('/index.php')) . "images/map_pins/pins/111.png", 
                     urldecode($Items['mapSettingsXML']), '', 
                     urldecode($Items["mapCSSXML"]), 
                     urldecode($Items["listCSSXML"]), 
                     urldecode($Items["headingCSSXML"]), 
-                    urldecode($Items["mapHTML"])))) {
+                    urldecode($Items["mapHTML"]),
+                    $Items['mapThemeName']))) {
                 die("Error!");
             }
 
@@ -453,6 +489,10 @@ class Easy2Map_AJAXFunctions {
         die(json_encode(Easy2Map_MapFunctions::Retrieve_map_templates($_REQUEST["mapID"])));
     }
 
+    public static function Retrieve_map_themes_callback() {
+        die(json_encode(Easy2Map_MapFunctions::Retrieve_map_themes($_REQUEST["mapID"])));
+    }
+
     public static function Retrieve_mappin_templates_callback() {
         die(json_encode(Easy2Map_MapPinFunctions::Retrieve_mappin_templates()));
     }
@@ -498,8 +538,10 @@ class e2mMapItem {
     public $CSSValuesList;
     public $CSSValuesHeading;
     public $PolyLines;
+    public $ThemeID;
+    public $Styles;
 
-    public function __construct($ID, $TemplateID, $MapName, $DefaultPinImage, $Settings, $CSSValues, $CSSValuesList, $CSSValuesHeading, $PolyLines) {
+    public function __construct($ID, $TemplateID, $MapName, $DefaultPinImage, $Settings, $CSSValues, $CSSValuesList, $CSSValuesHeading, $PolyLines, $ThemeID, $Styles) {
         $this->ID = $ID;
         $this->TemplateID = $TemplateID;
         $this->MapName = $MapName;
@@ -509,6 +551,8 @@ class e2mMapItem {
         $this->CSSValuesList = $CSSValuesList;
         $this->CSSValuesHeading = $CSSValuesHeading;
         $this->PolyLines = $PolyLines;
+        $this->ThemeID = $ThemeID;
+        $this->Styles = $Styles;
     }
 
 }
@@ -539,6 +583,23 @@ class e2mMapTemplate {
     }
 
 }
+
+
+class e2mMapTheme {
+
+    public $ID;
+    public $ThemeName;
+    public $Styles;
+    
+    public function __construct($ID, $ThemeName, $Styles) {
+
+        $this->ID = $ID;
+        $this->ThemeName = $ThemeName;
+        $this->Styles = $Styles;
+    }
+
+}
+
 
 class e2mMapPinTemplate {
 

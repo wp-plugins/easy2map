@@ -38,6 +38,8 @@
         <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
             <td style="font-weight:bold;">Administer map type, and maps' individual style elements to your exact requirements</td></tr>
         <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
+            <td style="font-weight:bold;">Make your map look beautiful, with a large range of predefined styles available</td></tr>
+        <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
             <td style="font-weight:bold;">Easily import and export Easy2Map maps and/or markers</td></tr>
         <tr><td style="width:10%;padding:8px;text-align:center;"><img src="<?php echo easy2map_get_plugin_url('/images/tick_small.png'); ?>"/></td>
             <td style="font-weight:bold;">Administer markers' popup features, such as 'Directions' link</td></tr>
@@ -69,7 +71,7 @@
         if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) {
 
             echo '<tr><td colspan="2" style="text-align:center;vertical-align:middle;height:100px;">
-                    <a target="_blank" href="http://easy2map.com/payment/paypal/easy2MapPro.php" style="text-decoration:underline;font-size:1.3em;color:#70aa00;font-weight:bold;">Click Here to Upgrade to the Ultimate Version for $11.99</a>
+                    <a target="_blank" href="http://easy2map.com/payment/paypal/easy2MapPro.php" style="text-decoration:underline;font-size:1.3em;color:#70aa00;font-weight:bold;">Click Here to Upgrade to the Ultimate Version for $12.99</a>
                     <img style="margin-left:30px;margin-right:auto;" src="' . easy2map_get_plugin_url('/images/paypal-verified.png') . '"></td></tr>';
         }
 

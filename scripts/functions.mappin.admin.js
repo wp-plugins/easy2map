@@ -40,7 +40,7 @@ var easy2map_mappin_functions = (function() {
 
         if (showMarkerTitle) {
             pinhtml = "<p style='font-weight:bold;font-size:" + markerNameFontSize + "em;'>" +
-                    this.selectedMapPoint.title.replace(/\\/gi, '') + "</p>" + pinhtml;
+            this.selectedMapPoint.title.replace(/\\/gi, '') + "</p>" + pinhtml;
         }
 
         if (showDirections) {
@@ -108,7 +108,7 @@ var easy2map_mappin_functions = (function() {
 
 
         });
-    };
+};
 
     //function used as object for saving details of pins in a loop
     listedMapPin = function(objPinDetails) {
@@ -332,6 +332,10 @@ var easy2map_mappin_functions = (function() {
         hidePreviewPage: function() {
             jQuery('#divMultipleLocations').fadeOut();
         },
+        togglePinNameShow : function(){
+            jQuery('[id ^= imageName]').toggle();
+            return false;
+        },
         //retrieve all pin icons associated with this map
         openImagesDirectory: function(selectedImage) {
 
@@ -351,6 +355,11 @@ var easy2map_mappin_functions = (function() {
                         if (iCounter % 6 == 0) {
                             var tr = document.createElement('tr');
                             document.getElementById('tblPinImages').appendChild(tr);
+
+                            var tr2 = document.createElement('tr');
+                            tr2.id = "imageName" + iCounter;
+                            tr2.style.display = 'none';
+                            document.getElementById('tblPinImages').appendChild(tr2);
                         }
 
                         var imageTd = document.createElement('td');
@@ -370,12 +379,31 @@ var easy2map_mappin_functions = (function() {
 
                         var arrImage = returnData[i].split("/");
                         if (arrImage.length > 0) {
-                            image.setAttribute('title', arrImage[arrImage.length - 1]);
+
+                            var imageName =  arrImage[arrImage.length - 1];
+
+                            var imageNameTd = document.createElement('td');
+                            imageNameTd.align = "left";
+                            imageNameTd.style.fontSize = "0.8em";
+                            imageNameTd.style.borderColor = "#FFFFFF";
+                            imageNameTd.style.padding = "2px";
+                            if (returnData[i] == selectedImage) {
+                                imageNameTd.style.borderColor = "#EBEBEB";
+                                imageNameTd.style.borderWidth = "2px";
+                                imageNameTd.style.borderStyle = "solid";
+                                imageNameTd.style.borderRadius = "3px"
+                            }
+                            imageNameTd.innerHTML = imageName;
+                            image.setAttribute('title', imageName);
+
+                            tr2.appendChild(imageNameTd);
+
                         }
                         image.src = returnData[i];
 
                         imageTd.appendChild(image);
                         tr.appendChild(imageTd);
+
                         iCounter += 1;
                     }
 
@@ -385,7 +413,7 @@ var easy2map_mappin_functions = (function() {
                     alert('E' + errorThrown);
                 }
             });
-        },
+},
         //run this function when a pin is dropped onto a map - setup controls for creating pin
         placePin: function(location) {
 
@@ -770,7 +798,7 @@ var easy2map_mappin_functions = (function() {
                     }
                 });
 
-            } catch (e) {
+} catch (e) {
                 //jQuery('#pleaseWaitDialog').modal('hide');
             }
         },
@@ -922,10 +950,10 @@ var easy2map_mappin_functions = (function() {
 
             });
 
-        },
-        setIconNotDraggable: function() {
-            jQuery('#draggable').css('cursor', 'default').draggable('destroy');
-        },
+},
+setIconNotDraggable: function() {
+    jQuery('#draggable').css('cursor', 'default').draggable('destroy');
+},
         //verify that the pin icon is a valid image file
         uploadPinIcon: function() {
 

@@ -9,6 +9,7 @@ exit ();
 	$map_points_table = $wpdb->prefix . "easy2map_map_points";
 	$map_point_templates_table = $wpdb->prefix . "easy2map_pin_templates";
 	$map_templates_table = $wpdb->prefix . "easy2map_templates";
+	$map_themes_table = $wpdb->prefix . "easy2map_themes";
 		
 	$SQLMapPoints = "DROP TABLE `$map_points_table`";
 	if (!$wpdb->query($SQLMapPoints)){
@@ -31,6 +32,12 @@ exit ();
 	$SQLMapTemplates = "DROP TABLE `$map_templates_table`";
 	if (!$wpdb->query($SQLMapTemplates)){
 		echo sprintf($error, __("Could not drop easy2map map templates table.", 'easy2map'));
+		return;
+	}
+
+	$SQLMapThemes = "DROP TABLE `$map_themes_table`";
+	if (!$wpdb->query($SQLMapThemes)){
+		echo sprintf($error, __("Could not drop easy2map map themes table.", 'easy2map'));
 		return;
 	}
         

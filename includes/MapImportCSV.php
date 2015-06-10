@@ -62,7 +62,10 @@ if (is_uploaded_file($_FILES["csvfile"]['tmp_name'])) {
             }
         }
         fclose($handle);
-        echo '<script> jQuery(function() { window.location = "?page=easy2map&action=edit&map_id=' . $mapID . '";});</script>';
+        echo '<script> jQuery(function() { 
+            alert("' . $row . ' records successfully imported");
+            window.location = "?page=easy2map&action=edit&map_id=' . $mapID . '";});
+        </script>';
     }
 }
 ?>
@@ -75,7 +78,7 @@ if (is_uploaded_file($_FILES["csvfile"]['tmp_name'])) {
 
         <table style="background-color:#EBEBEB;width:60%;margin-left:auto;margin-right:auto;margin-top:10px;" cellspacing="3" cellpadding="3" class="table table-bordered">
             <tr>
-                <td class="instructions"><h5>Import Markers via .CSV</h5>
+                <td class="instructions"><h5>Import Markers via .CSV (Using Latitude &amp; Longitude)</h5>
                 </td>
             </tr>
 
@@ -101,15 +104,19 @@ if (is_uploaded_file($_FILES["csvfile"]['tmp_name'])) {
             </tr>
             <tr><td>[marker 1 latitude],[marker 1 longitude],[marker 1 title],[marker 1 icon],[marker 1 description]<br>
             [marker 2 latitude],[marker 2 longitude],[marker 2 title],[marker 2 icon],[marker 2 description]</td></tr>
+            <tr><th>Example:
+            <p style="font-style:italic">51.508039, -0.128068999, Trafalgar Square, 222.png, At the heart of London<br>
+            48.85837, 2.294481, Tour Eiffel, 222.png, At the heart of Paris
+            </p></th></tr>
             <tr>
 
                 <td style="margin-top:20px;">
 
                     <h5>Important to note:</h5>
                     <ul>
-                        <li> <b>latitude and longitude:</b> must be numeric, for example <b><i>-26.022850990407825, 28.046894073486328</i></b></li>
-                        <li> <b>marker icon:</b> this can be the file name of a marker icon that has been uploaded, for example <b>CoolPinIcon.png</b><br>(leave this field empty for default icon to appear)</li>
-                        <li> <b>marker description:</b> can contain HTML</li>
+                        <li> <b>Latitude and longitude:</b> must be numeric, for example <b><i>-26.022850990407825, 28.046894073486328</i></b></li>
+                        <li> <b>Marker icon:</b> this can be the file name of a marker icon that has been uploaded, for example <b>CoolPinIcon.png</b><br>(leave this field empty for default icon to appear)</li>
+                        <li> <b>Marker description:</b> can contain HTML</li>
                     </ul>
 
 

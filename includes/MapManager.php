@@ -114,7 +114,7 @@ foreach ($results as $result) {
     </table>
         <?php if (count($results) > 0) { ?>
         <a style="float:left;margin-left:5%;font-size:1.1em;font-weight:bold" href="http://wordpress.org/support/view/plugin-reviews/easy2map#postform" target="_blank">Rate this plugin on WordPress</a>
-        <a style="float:right;margin-right:5%;font-size:1.1em;font-weight:bold" href="http://easy2map.com/contactUs.php" target="_blank">Your comments and feedback are always welcome</a>
+        <a style="float:right;margin-right:5%;font-size:1.1em;font-weight:bold" href="mailto:steven@easy2map.com" target="_top">Your comments and feedback are always welcome</a>
 <?php } ?>
 </div>
 

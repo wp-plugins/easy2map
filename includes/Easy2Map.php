@@ -11,6 +11,8 @@ class Easy2Map {
     // Used to uniquely identify this plugin's menu page in the WP manager
     const admin_menu_slug = 'easy2map';
 
+    static private $url = "http://maps.google.com/maps/api/geocode/json?sensor=false&address=";
+
     /** Adds the necessary JavaScript and/or CSS to the pages to enable the Ajax search. */
     public static function head() {
 
@@ -43,21 +45,12 @@ class Easy2Map {
 
         remove_action('admin_init', 'wp_auth_check_load');
 
-        //if (self::_is_searchable_page()) {
-        //$src = plugins_url('css/easy2map.css', dirname(__FILE__));
-        //wp_register_style('easy2map', $src);
-        //wp_enqueue_style('easy2map');
-        //MERCURIAL COMMIT TEST
-        //}
     }
 
     /**     * Register the shortcodes used */
     public static function register_shortcodes() {
         add_shortcode('easy2map', 'Easy2Map::retrieve_map');
     }
-
-    //PART 1 - END
-    ////PART 2 - START
 
     public static function create_admin_tables() {
 
@@ -67,6 +60,7 @@ class Easy2Map {
         $map_points_table = $wpdb->prefix . "easy2map_map_points";
         $map_point_templates_table = $wpdb->prefix . "easy2map_pin_templates";
         $map_templates_table = $wpdb->prefix . "easy2map_templates";
+        $map_themes_table = $wpdb->prefix . "easy2map_themes";
 
         $result = $wpdb->get_var("show tables like '$map_table'");
 
@@ -86,6 +80,7 @@ class Easy2Map {
             `IsActive` smallint(6),
             `CSSValuesList` text,
             `CSSValuesHeading` text,
+            `ThemeID` bigint(2) DEFAULT NULL,
             PRIMARY KEY (`ID`),
             UNIQUE KEY `ID_UNIQUE` (`ID`)
             ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8";
@@ -100,11 +95,11 @@ class Easy2Map {
 
                 //convert to utf8 collation if necessary
                 $collation = $wpdb->get_var("SELECT CCSA.character_set_name 
-            FROM information_schema.`TABLES` T,
-            information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
-            WHERE CCSA.collation_name = T.table_collation
-            AND T.table_schema  = '" . DB_NAME . "'
-            AND T.table_name = '$map_table' LIMIT 1;");
+                FROM information_schema.`TABLES` T,
+                information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+                WHERE CCSA.collation_name = T.table_collation
+                AND T.table_schema  = '" . DB_NAME . "'
+                AND T.table_name = '$map_table' LIMIT 1;");
 
                 if (isset($collation) && strcasecmp(strtolower($collation), "utf8") !== 0) {
                     $wpdb->query("ALTER TABLE `$map_table` CONVERT TO CHARACTER SET utf8;");
@@ -112,6 +107,16 @@ class Easy2Map {
             } catch (Exception $e) {
                 
             }
+
+            //does themeID column exist?
+            $arrThemeIDColumnFound = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
+            WHERE TABLE_NAME = '$map_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'ThemeID';");
+
+            //add themeID table column
+            if (count($arrThemeIDColumnFound) === 0) {
+                $wpdb->query("ALTER TABLE $map_table ADD ThemeID int(11) DEFAULT NULL;");
+            }
+
         }
 
         $result = $wpdb->get_var("show tables like '$map_points_table'");
@@ -143,11 +148,11 @@ class Easy2Map {
 
                 //convert to utf8 collation if necessary
                 $collation = $wpdb->get_var("SELECT CCSA.character_set_name 
-            FROM information_schema.`TABLES` T,
-            information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
-            WHERE CCSA.collation_name = T.table_collation
-            AND T.table_schema  = '" . DB_NAME . "'
-            AND T.table_name = '$map_points_table' LIMIT 1;");
+                FROM information_schema.`TABLES` T,
+                information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA
+                WHERE CCSA.collation_name = T.table_collation
+                AND T.table_schema  = '" . DB_NAME . "'
+                AND T.table_name = '$map_points_table' LIMIT 1;");
 
                 if (isset($collation) && strcasecmp(strtolower($collation), "utf8") !== 0) {
                     $wpdb->query("ALTER TABLE `$map_points_table` CONVERT TO CHARACTER SET utf8;");
@@ -268,7 +273,7 @@ class Easy2Map {
 
                 //check to see if the new columns (for version 1.2.1) have been added
                 $arrFound1 = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
-            WHERE TABLE_NAME = '$map_templates_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesList';");
+                WHERE TABLE_NAME = '$map_templates_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesList';");
 
                 //add CSSValuesList table column
                 if (count($arrFound1) === 0) {
@@ -277,7 +282,7 @@ class Easy2Map {
 
                 //check to see if the new columns (for version 1.2.1) have been added
                 $arrFound2 = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
-            WHERE TABLE_NAME = '$map_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesList';");
+                WHERE TABLE_NAME = '$map_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesList';");
 
                 //add CSSValuesList table column
                 if (count($arrFound2) === 0) {
@@ -285,7 +290,7 @@ class Easy2Map {
                 }
 
                 $arrFound3 = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
-            WHERE TABLE_NAME = '$map_templates_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesHeading';");
+                WHERE TABLE_NAME = '$map_templates_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesHeading';");
 
                 //add CSSValuesHeading table column
                 if (count($arrFound3) === 0) {
@@ -293,7 +298,7 @@ class Easy2Map {
                 }
 
                 $arrFound4 = $wpdb->get_results("SELECT * FROM information_schema.COLUMNS 
-            WHERE TABLE_NAME = '$map_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesHeading';");
+                WHERE TABLE_NAME = '$map_table' AND TABLE_SCHEMA = '" . DB_NAME . "' AND COLUMN_NAME = 'CSSValuesHeading';");
 
                 //add CSSValuesHeading table column
                 if (count($arrFound4) === 0) {
@@ -310,7 +315,7 @@ class Easy2Map {
                     }
                 } else {
 
-                    $wpdb->query("UPDATE `$map_templates_table`
+                   $wpdb->query("UPDATE `$map_templates_table`
                    SET CSSValues = '<settings background-color=\"#FFFFFF\" border-style=\"solid\" border-width=\"1px\" border-color=\"#EBEBEB\" width=\"640px\" height=\"480px\"  margin-left=\"auto\" margin-right=\"auto\" />'
                    ,TemplateHTML = '<div style=\"margin:auto;\"><table cellpadding=\"1\" cellspacing=\"1\" id=\"divMapParent\"><tr><td id=\"tdMap\" editable=\"0\" style=\"vertical-align:top;\"><div id=\"divMap\" style=\"background-color: #EBEBEB;border-style:solid;border-width:1px;border-color:transparent;top:0px;left:0px;min-width:10px;margin-bottom:5px;margin-left:5px;margin-right:5px;margin-top:5px;position:relative;\"></div></td></tr></table></div>' 
                    WHERE ID = 94;");
@@ -551,6 +556,113 @@ class Easy2Map {
                 $wpdb->query("UPDATE `$map_templates_table` SET `Version` = '" . self::e2m_version . "';");
             }
         }
+
+
+        $result = $wpdb->get_var("show tables like '$map_themes_table'");
+
+        if (strtolower($result) != strtolower($map_themes_table)) {
+
+            $SQL = "CREATE TABLE `$map_themes_table` (
+                `ID` int(11) NOT NULL AUTO_INCREMENT,
+                `ThemeName` varchar(256) DEFAULT NULL,
+                `Styles` text,
+                `Version` varchar(128) DEFAULT NULL,
+                PRIMARY KEY (`ID`),
+                UNIQUE KEY `ID_UNIQUE` (`ID`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8";
+
+            if (!$wpdb->query($SQL)) {
+                echo sprintf($error, __("Could not create easy2map themes table.", 'easy2map'));
+                return;
+            }
+
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (1, 'No Theme','','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (2, 'Subtle Greyscale','[{\"featureType\":\"landscape\",\"stylers\":[{\"saturation\":-100},{\"lightness\":65},{\"visibility\":\"on\"}]},{\"featureType\":\"poi\",\"stylers\":[{\"saturation\":-100},{\"lightness\":51},{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.highway\",\"stylers\":[{\"saturation\":-100},{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"saturation\":-100},{\"lightness\":30},{\"visibility\":\"on\"}]},{\"featureType\":\"road.local\",\"stylers\":[{\"saturation\":-100},{\"lightness\":40},{\"visibility\":\"on\"}]},{\"featureType\":\"transit\",\"stylers\":[{\"saturation\":-100},{\"visibility\":\"simplified\"}]},{\"featureType\":\"administrative.province\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"on\"},{\"lightness\":-25},{\"saturation\":-100}]},{\"featureType\":\"water\",\"elementType\":\"geometry\",\"stylers\":[{\"hue\":\"#ffff00\"},{\"lightness\":-25},{\"saturation\":-97}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (3, 'Blue Essence','[{\"featureType\":\"landscape.natural\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#e0efef\"}]},{\"featureType\":\"poi\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"visibility\":\"on\"},{\"hue\":\"#1900ff\"},{\"color\":\"#c0e8e8\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry\",\"stylers\":[{\"lightness\":100},{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"transit.line\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"},{\"lightness\":700}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"color\":\"#7dcdcd\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (4, 'Apple Maps-esque','[{\"featureType\":\"landscape.man_made\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#f7f1df\"}]},{\"featureType\":\"landscape.natural\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#d0e3b4\"}]},{\"featureType\":\"landscape.natural.terrain\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.business\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.medical\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#fbd3da\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#bde6ab\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ffe15f\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"color\":\"#efd151\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"black\"}]},{\"featureType\":\"transit.station.airport\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#cfb2db\"}]},{\"featureType\":\"water\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#a2daf2\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (5, 'Blue Water','[{\"featureType\":\"administrative\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#444444\"}]},{\"featureType\":\"landscape\",\"elementType\":\"all\",\"stylers\":[{\"color\":\"#f2f2f2\"}]},{\"featureType\":\"poi\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road\",\"elementType\":\"all\",\"stylers\":[{\"saturation\":-100},{\"lightness\":45}]},{\"featureType\":\"road.highway\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"transit\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"color\":\"#46bcec\"},{\"visibility\":\"on\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (6, 'Pale Dawn','[{\"featureType\":\"administrative\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"on\"},{\"lightness\":33}]},{\"featureType\":\"landscape\",\"elementType\":\"all\",\"stylers\":[{\"color\":\"#f2e5d4\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#c5dac6\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"on\"},{\"lightness\":20}]},{\"featureType\":\"road\",\"elementType\":\"all\",\"stylers\":[{\"lightness\":20}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#c5c6c6\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#e4d7c6\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#fbfaf7\"}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#acbcc9\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (7, 'Retro','[{\"featureType\":\"administrative\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"water\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"transit\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"landscape\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.highway\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"water\",\"stylers\":[{\"color\":\"#84afa3\"},{\"lightness\":52}]},{\"stylers\":[{\"saturation\":-17},{\"gamma\":0.36}]},{\"featureType\":\"transit.line\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#3f518c\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (8, 'Paper','[{\"featureType\":\"administrative\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"},{\"hue\":\"#0066ff\"},{\"saturation\":74},{\"lightness\":100}]},{\"featureType\":\"poi\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"},{\"weight\":0.6},{\"saturation\":-85},{\"lightness\":61}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"transit\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"},{\"color\":\"#5f94ff\"},{\"lightness\":26},{\"gamma\":5.86}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (9, 'Gowalla','[{\"featureType\":\"administrative.land_parcel\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape.man_made\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"},{\"lightness\":20}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"hue\":\"#f49935\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry\",\"stylers\":[{\"hue\":\"#fad959\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.local\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"transit\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"hue\":\"#a1cdfc\"},{\"saturation\":30},{\"lightness\":49}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (10, 'Neutral Blue','[{\"featureType\":\"water\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#193341\"}]},{\"featureType\":\"landscape\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#2c5a71\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#29768a\"},{\"lightness\":-37}]},{\"featureType\":\"poi\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#406d80\"}]},{\"featureType\":\"transit\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#406d80\"}]},{\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#3e606f\"},{\"weight\":2},{\"gamma\":0.84}]},{\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"administrative\",\"elementType\":\"geometry\",\"stylers\":[{\"weight\":0.6},{\"color\":\"#1a3541\"}]},{\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#2c5a71\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (11, 'MapBox','[{\"featureType\":\"water\",\"stylers\":[{\"saturation\":43},{\"lightness\":-11},{\"hue\":\"#0088ff\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"hue\":\"#ff0000\"},{\"saturation\":-100},{\"lightness\":99}]},{\"featureType\":\"road\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"color\":\"#808080\"},{\"lightness\":54}]},{\"featureType\":\"landscape.man_made\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ece2d9\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ccdca1\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#767676\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"poi\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape.natural\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#b8cb93\"}]},{\"featureType\":\"poi.park\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"poi.sports_complex\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"poi.medical\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"poi.business\",\"stylers\":[{\"visibility\":\"simplified\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (12, 'becomeadinosaur','[{\"elementType\":\"labels.text\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape.natural\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#f5f5f2\"},{\"visibility\":\"on\"}]},{\"featureType\":\"administrative\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"transit\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.attraction\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape.man_made\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ffffff\"},{\"visibility\":\"on\"}]},{\"featureType\":\"poi.business\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.medical\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.place_of_worship\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.school\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.sports_complex\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#ffffff\"},{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"visibility\":\"simplified\"},{\"color\":\"#ffffff\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"labels.icon\",\"stylers\":[{\"color\":\"#ffffff\"},{\"visibility\":\"off\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"road.local\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"stylers\":[{\"color\":\"#71c8d4\"}]},{\"featureType\":\"landscape\",\"stylers\":[{\"color\":\"#e5e8e7\"}]},{\"featureType\":\"poi.park\",\"stylers\":[{\"color\":\"#8ba129\"}]},{\"featureType\":\"road\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"poi.sports_complex\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#c7c7c7\"},{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"stylers\":[{\"color\":\"#a0d3d3\"}]},{\"featureType\":\"poi.park\",\"stylers\":[{\"color\":\"#91b65d\"}]},{\"featureType\":\"poi.park\",\"stylers\":[{\"gamma\":1.51}]},{\"featureType\":\"road.local\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"poi.government\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.local\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\"},{\"featureType\":\"road\"},{},{\"featureType\":\"road.highway\"}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (13, 'Avocado World','[{\"featureType\":\"water\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#aee2e0\"}]},{\"featureType\":\"landscape\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#abce83\"}]},{\"featureType\":\"poi\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#769E72\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#7B8758\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#EBF4A4\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"simplified\"},{\"color\":\"#8dab68\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#5B5B3F\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#ABCE83\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#A4C67D\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#9BBF72\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#EBF4A4\"}]},{\"featureType\":\"transit\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"administrative\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#87ae79\"}]},{\"featureType\":\"administrative\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#7f2200\"},{\"visibility\":\"off\"}]},{\"featureType\":\"administrative\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#ffffff\"},{\"visibility\":\"on\"},{\"weight\":4.1}]},{\"featureType\":\"administrative\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#495421\"}]},{\"featureType\":\"administrative.neighborhood\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (14, 'Bentley','[{\"featureType\":\"landscape\",\"stylers\":[{\"hue\":\"#F1FF00\"},{\"saturation\":-27.4},{\"lightness\":9.4},{\"gamma\":1}]},{\"featureType\":\"road.highway\",\"stylers\":[{\"hue\":\"#0099FF\"},{\"saturation\":-20},{\"lightness\":36.4},{\"gamma\":1}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"hue\":\"#00FF4F\"},{\"saturation\":0},{\"lightness\":0},{\"gamma\":1}]},{\"featureType\":\"road.local\",\"stylers\":[{\"hue\":\"#FFB300\"},{\"saturation\":-38},{\"lightness\":11.2},{\"gamma\":1}]},{\"featureType\":\"water\",\"stylers\":[{\"hue\":\"#00B6FF\"},{\"saturation\":4.2},{\"lightness\":-63.4},{\"gamma\":1}]},{\"featureType\":\"poi\",\"stylers\":[{\"hue\":\"#9FFF00\"},{\"saturation\":0},{\"lightness\":0},{\"gamma\":1}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (15, 'Bright and Bubbly','[{\"featureType\":\"water\",\"stylers\":[{\"color\":\"#19a0d8\"}]},{\"featureType\":\"administrative\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#ffffff\"},{\"weight\":6}]},{\"featureType\":\"administrative\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#e85113\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"color\":\"#efe9e4\"},{\"lightness\":-40}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"color\":\"#efe9e4\"},{\"lightness\":-20}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"lightness\":100}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"lightness\":-100}]},{\"featureType\":\"road.highway\",\"elementType\":\"labels.icon\"},{\"featureType\":\"landscape\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape\",\"stylers\":[{\"lightness\":20},{\"color\":\"#efe9e4\"}]},{\"featureType\":\"landscape.man_made\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"lightness\":100}]},{\"featureType\":\"water\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"lightness\":-100}]},{\"featureType\":\"poi\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"hue\":\"#11ff00\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"lightness\":100}]},{\"featureType\":\"poi\",\"elementType\":\"labels.icon\",\"stylers\":[{\"hue\":\"#4cff00\"},{\"saturation\":58}]},{\"featureType\":\"poi\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#f0e4d3\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#efe9e4\"},{\"lightness\":-25}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#efe9e4\"},{\"lightness\":-10}]},{\"featureType\":\"poi\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"}]}]','" . self::e2m_version . "');");
+            $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (16, 'Nature','[{\"featureType\":\"landscape\",\"stylers\":[{\"hue\":\"#FFA800\"},{\"saturation\":0},{\"lightness\":0},{\"gamma\":1}]},{\"featureType\":\"road.highway\",\"stylers\":[{\"hue\":\"#53FF00\"},{\"saturation\":-73},{\"lightness\":40},{\"gamma\":1}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"hue\":\"#FBFF00\"},{\"saturation\":0},{\"lightness\":0},{\"gamma\":1}]},{\"featureType\":\"road.local\",\"stylers\":[{\"hue\":\"#00FFFD\"},{\"saturation\":0},{\"lightness\":30},{\"gamma\":1}]},{\"featureType\":\"water\",\"stylers\":[{\"hue\":\"#00BFFF\"},{\"saturation\":6},{\"lightness\":8},{\"gamma\":1}]},{\"featureType\":\"poi\",\"stylers\":[{\"hue\":\"#679714\"},{\"saturation\":33.4},{\"lightness\":-25.4},{\"gamma\":1}]}]','" . self::e2m_version . "');");
+
+            
+        } else {
+
+            //does theme exist?
+            $arrThemeSearch1 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 1");
+            if (count($arrThemeSearch1) === 0) {
+                $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (1, 'No Theme','','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch2 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 2");
+            if (count($arrThemeSearch2) === 0) {
+                $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (2, 'Subtle Greyscale','[{\"featureType\":\"landscape\",\"stylers\":[{\"saturation\":-100},{\"lightness\":65},{\"visibility\":\"on\"}]},{\"featureType\":\"poi\",\"stylers\":[{\"saturation\":-100},{\"lightness\":51},{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.highway\",\"stylers\":[{\"saturation\":-100},{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"saturation\":-100},{\"lightness\":30},{\"visibility\":\"on\"}]},{\"featureType\":\"road.local\",\"stylers\":[{\"saturation\":-100},{\"lightness\":40},{\"visibility\":\"on\"}]},{\"featureType\":\"transit\",\"stylers\":[{\"saturation\":-100},{\"visibility\":\"simplified\"}]},{\"featureType\":\"administrative.province\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"on\"},{\"lightness\":-25},{\"saturation\":-100}]},{\"featureType\":\"water\",\"elementType\":\"geometry\",\"stylers\":[{\"hue\":\"#ffff00\"},{\"lightness\":-25},{\"saturation\":-97}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch3 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 3");
+            if (count($arrThemeSearch3) === 0) {
+               $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (3, 'Blue Essence','[{\"featureType\":\"landscape.natural\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#e0efef\"}]},{\"featureType\":\"poi\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"visibility\":\"on\"},{\"hue\":\"#1900ff\"},{\"color\":\"#c0e8e8\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry\",\"stylers\":[{\"lightness\":100},{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"transit.line\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"},{\"lightness\":700}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"color\":\"#7dcdcd\"}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch4 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 4");
+            if (count($arrThemeSearch4) === 0) {
+               $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (4, 'Apple Maps-esque','[{\"featureType\":\"landscape.man_made\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#f7f1df\"}]},{\"featureType\":\"landscape.natural\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#d0e3b4\"}]},{\"featureType\":\"landscape.natural.terrain\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.business\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.medical\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#fbd3da\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#bde6ab\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ffe15f\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"color\":\"#efd151\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"black\"}]},{\"featureType\":\"transit.station.airport\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#cfb2db\"}]},{\"featureType\":\"water\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#a2daf2\"}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch5 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 5");
+            if (count($arrThemeSearch5) === 0) {
+               $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (5, 'Blue Water','[{\"featureType\":\"administrative\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#444444\"}]},{\"featureType\":\"landscape\",\"elementType\":\"all\",\"stylers\":[{\"color\":\"#f2f2f2\"}]},{\"featureType\":\"poi\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road\",\"elementType\":\"all\",\"stylers\":[{\"saturation\":-100},{\"lightness\":45}]},{\"featureType\":\"road.highway\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"transit\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"color\":\"#46bcec\"},{\"visibility\":\"on\"}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch6 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 6");
+            if (count($arrThemeSearch6) === 0) {
+               $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (6, 'Pale Dawn','[{\"featureType\":\"administrative\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"on\"},{\"lightness\":33}]},{\"featureType\":\"landscape\",\"elementType\":\"all\",\"stylers\":[{\"color\":\"#f2e5d4\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#c5dac6\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"on\"},{\"lightness\":20}]},{\"featureType\":\"road\",\"elementType\":\"all\",\"stylers\":[{\"lightness\":20}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#c5c6c6\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#e4d7c6\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#fbfaf7\"}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#acbcc9\"}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch7 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 7");
+            if (count($arrThemeSearch7) === 0) {
+               $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (7, 'Retro','[{\"featureType\":\"administrative\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"water\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"transit\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"landscape\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.highway\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"water\",\"stylers\":[{\"color\":\"#84afa3\"},{\"lightness\":52}]},{\"stylers\":[{\"saturation\":-17},{\"gamma\":0.36}]},{\"featureType\":\"transit.line\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#3f518c\"}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch8 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 8");
+            if (count($arrThemeSearch8) === 0) {
+               $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (8, 'Paper','[{\"featureType\":\"administrative\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"},{\"hue\":\"#0066ff\"},{\"saturation\":74},{\"lightness\":100}]},{\"featureType\":\"poi\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"},{\"weight\":0.6},{\"saturation\":-85},{\"lightness\":61}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"transit\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"simplified\"},{\"color\":\"#5f94ff\"},{\"lightness\":26},{\"gamma\":5.86}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch9 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 9");
+            if (count($arrThemeSearch9) === 0) {
+               $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (9, 'Gowalla','[{\"featureType\":\"administrative.land_parcel\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape.man_made\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"},{\"lightness\":20}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"hue\":\"#f49935\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry\",\"stylers\":[{\"hue\":\"#fad959\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.local\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"transit\",\"elementType\":\"all\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"elementType\":\"all\",\"stylers\":[{\"hue\":\"#a1cdfc\"},{\"saturation\":30},{\"lightness\":49}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch10 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 10");
+            if (count($arrThemeSearch10) === 0) {
+               $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (10, 'Neutral Blue','[{\"featureType\":\"water\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#193341\"}]},{\"featureType\":\"landscape\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#2c5a71\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#29768a\"},{\"lightness\":-37}]},{\"featureType\":\"poi\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#406d80\"}]},{\"featureType\":\"transit\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#406d80\"}]},{\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#3e606f\"},{\"weight\":2},{\"gamma\":0.84}]},{\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"administrative\",\"elementType\":\"geometry\",\"stylers\":[{\"weight\":0.6},{\"color\":\"#1a3541\"}]},{\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#2c5a71\"}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch11 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 11");
+            if (count($arrThemeSearch11) === 0) {
+                $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (11, 'MapBox','[{\"featureType\":\"water\",\"stylers\":[{\"saturation\":43},{\"lightness\":-11},{\"hue\":\"#0088ff\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"hue\":\"#ff0000\"},{\"saturation\":-100},{\"lightness\":99}]},{\"featureType\":\"road\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"color\":\"#808080\"},{\"lightness\":54}]},{\"featureType\":\"landscape.man_made\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ece2d9\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ccdca1\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#767676\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"poi\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape.natural\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#b8cb93\"}]},{\"featureType\":\"poi.park\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"poi.sports_complex\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"poi.medical\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"poi.business\",\"stylers\":[{\"visibility\":\"simplified\"}]}]','" . self::e2m_version . "');");
+            } 
+            $arrThemeSearch12 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 12");
+            if (count($arrThemeSearch12) === 0) {
+                $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (12, 'becomeadinosaur','[{\"elementType\":\"labels.text\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape.natural\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#f5f5f2\"},{\"visibility\":\"on\"}]},{\"featureType\":\"administrative\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"transit\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.attraction\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape.man_made\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#ffffff\"},{\"visibility\":\"on\"}]},{\"featureType\":\"poi.business\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.medical\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.place_of_worship\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.school\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi.sports_complex\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#ffffff\"},{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"visibility\":\"simplified\"},{\"color\":\"#ffffff\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"labels.icon\",\"stylers\":[{\"color\":\"#ffffff\"},{\"visibility\":\"off\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"road.local\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"stylers\":[{\"color\":\"#71c8d4\"}]},{\"featureType\":\"landscape\",\"stylers\":[{\"color\":\"#e5e8e7\"}]},{\"featureType\":\"poi.park\",\"stylers\":[{\"color\":\"#8ba129\"}]},{\"featureType\":\"road\",\"stylers\":[{\"color\":\"#ffffff\"}]},{\"featureType\":\"poi.sports_complex\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#c7c7c7\"},{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"stylers\":[{\"color\":\"#a0d3d3\"}]},{\"featureType\":\"poi.park\",\"stylers\":[{\"color\":\"#91b65d\"}]},{\"featureType\":\"poi.park\",\"stylers\":[{\"gamma\":1.51}]},{\"featureType\":\"road.local\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"}]},{\"featureType\":\"poi.government\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road.local\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\"},{\"featureType\":\"road\"},{},{\"featureType\":\"road.highway\"}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch13 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 13");
+            if (count($arrThemeSearch13) === 0) {
+                $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (13, 'Avocado World','[{\"featureType\":\"water\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#aee2e0\"}]},{\"featureType\":\"landscape\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#abce83\"}]},{\"featureType\":\"poi\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#769E72\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#7B8758\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#EBF4A4\"}]},{\"featureType\":\"poi.park\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"simplified\"},{\"color\":\"#8dab68\"}]},{\"featureType\":\"road\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"visibility\":\"simplified\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#5B5B3F\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#ABCE83\"}]},{\"featureType\":\"road\",\"elementType\":\"labels.icon\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"road.local\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#A4C67D\"}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#9BBF72\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry\",\"stylers\":[{\"color\":\"#EBF4A4\"}]},{\"featureType\":\"transit\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"administrative\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#87ae79\"}]},{\"featureType\":\"administrative\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#7f2200\"},{\"visibility\":\"off\"}]},{\"featureType\":\"administrative\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#ffffff\"},{\"visibility\":\"on\"},{\"weight\":4.1}]},{\"featureType\":\"administrative\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#495421\"}]},{\"featureType\":\"administrative.neighborhood\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch14 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 14");
+            if (count($arrThemeSearch14) === 0) {
+                $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (14, 'Bentley','[{\"featureType\":\"landscape\",\"stylers\":[{\"hue\":\"#F1FF00\"},{\"saturation\":-27.4},{\"lightness\":9.4},{\"gamma\":1}]},{\"featureType\":\"road.highway\",\"stylers\":[{\"hue\":\"#0099FF\"},{\"saturation\":-20},{\"lightness\":36.4},{\"gamma\":1}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"hue\":\"#00FF4F\"},{\"saturation\":0},{\"lightness\":0},{\"gamma\":1}]},{\"featureType\":\"road.local\",\"stylers\":[{\"hue\":\"#FFB300\"},{\"saturation\":-38},{\"lightness\":11.2},{\"gamma\":1}]},{\"featureType\":\"water\",\"stylers\":[{\"hue\":\"#00B6FF\"},{\"saturation\":4.2},{\"lightness\":-63.4},{\"gamma\":1}]},{\"featureType\":\"poi\",\"stylers\":[{\"hue\":\"#9FFF00\"},{\"saturation\":0},{\"lightness\":0},{\"gamma\":1}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch15 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 15");
+            if (count($arrThemeSearch15) === 0) {
+                $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (15, 'Bright and Bubbly','[{\"featureType\":\"water\",\"stylers\":[{\"color\":\"#19a0d8\"}]},{\"featureType\":\"administrative\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"color\":\"#ffffff\"},{\"weight\":6}]},{\"featureType\":\"administrative\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"color\":\"#e85113\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"color\":\"#efe9e4\"},{\"lightness\":-40}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry.stroke\",\"stylers\":[{\"color\":\"#efe9e4\"},{\"lightness\":-20}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"lightness\":100}]},{\"featureType\":\"road\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"lightness\":-100}]},{\"featureType\":\"road.highway\",\"elementType\":\"labels.icon\"},{\"featureType\":\"landscape\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"landscape\",\"stylers\":[{\"lightness\":20},{\"color\":\"#efe9e4\"}]},{\"featureType\":\"landscape.man_made\",\"stylers\":[{\"visibility\":\"off\"}]},{\"featureType\":\"water\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"lightness\":100}]},{\"featureType\":\"water\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"lightness\":-100}]},{\"featureType\":\"poi\",\"elementType\":\"labels.text.fill\",\"stylers\":[{\"hue\":\"#11ff00\"}]},{\"featureType\":\"poi\",\"elementType\":\"labels.text.stroke\",\"stylers\":[{\"lightness\":100}]},{\"featureType\":\"poi\",\"elementType\":\"labels.icon\",\"stylers\":[{\"hue\":\"#4cff00\"},{\"saturation\":58}]},{\"featureType\":\"poi\",\"elementType\":\"geometry\",\"stylers\":[{\"visibility\":\"on\"},{\"color\":\"#f0e4d3\"}]},{\"featureType\":\"road.highway\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#efe9e4\"},{\"lightness\":-25}]},{\"featureType\":\"road.arterial\",\"elementType\":\"geometry.fill\",\"stylers\":[{\"color\":\"#efe9e4\"},{\"lightness\":-10}]},{\"featureType\":\"poi\",\"elementType\":\"labels\",\"stylers\":[{\"visibility\":\"simplified\"}]}]','" . self::e2m_version . "');");
+            }
+            $arrThemeSearch16 = $wpdb->get_results("SELECT ID FROM `$map_themes_table` WHERE ID = 16");
+            if (count($arrThemeSearch16) === 0) {
+                $wpdb->query("INSERT INTO `$map_themes_table` (ID, ThemeName, Styles, Version) VALUES (16, 'Nature','[{\"featureType\":\"landscape\",\"stylers\":[{\"hue\":\"#FFA800\"},{\"saturation\":0},{\"lightness\":0},{\"gamma\":1}]},{\"featureType\":\"road.highway\",\"stylers\":[{\"hue\":\"#53FF00\"},{\"saturation\":-73},{\"lightness\":40},{\"gamma\":1}]},{\"featureType\":\"road.arterial\",\"stylers\":[{\"hue\":\"#FBFF00\"},{\"saturation\":0},{\"lightness\":0},{\"gamma\":1}]},{\"featureType\":\"road.local\",\"stylers\":[{\"hue\":\"#00FFFD\"},{\"saturation\":0},{\"lightness\":30},{\"gamma\":1}]},{\"featureType\":\"water\",\"stylers\":[{\"hue\":\"#00BFFF\"},{\"saturation\":6},{\"lightness\":8},{\"gamma\":1}]},{\"featureType\":\"poi\",\"stylers\":[{\"hue\":\"#679714\"},{\"saturation\":33.4},{\"lightness\":-25.4},{\"gamma\":1}]}]','" . self::e2m_version . "');");
+            }
+        }
+
     }
 
     /**     * Create custom post-type menu */
@@ -562,26 +674,7 @@ class Easy2Map {
                 'Easy2Map::get_admin_page', // callback 
                 plugins_url('images/e2m_favicon2020.png', dirname(__FILE__)) //default icon
         );
-
-        /* if (current_user_can('edit_posts') || current_user_can('edit_pages')){
-
-          if(get_user_option('rich_editing') == 'true')
-          {
-          add_filter("mce_external_plugins", "Easy2Map::add_easy2map_tinymce_plugin");
-          add_filter('mce_buttons', 'Easy2Map::register_easy2map_button');
-          }
-          } */
     }
-
-    /* public static function add_easy2map_tinymce_plugin($plugin_array) {
-      $plugin_array['easy2map'] = plugins_url('easy2map-tinymce.php', dirname(__FILE__));
-      return $plugin_array;
-      }
-
-      function register_easy2map_button($buttons) {
-      array_push($buttons, "|", "easy2map");
-      return $buttons;
-      } */
 
     /** Prints the administration page for this plugin. */
     public static function get_admin_page() {
@@ -600,6 +693,8 @@ class Easy2Map {
             include('MapImport.php');
 		} else if (isset($_GET["action"]) && strcasecmp($_GET["action"], "mapimportcsv") == 0 && isset($_GET["map_id"])) {
             include('MapImportCSV.php');
+        } else if (isset($_GET["action"]) && strcasecmp($_GET["action"], "mapimportcsv2") == 0 && isset($_GET["map_id"])) {
+            include('MapImportCSV2.php');
         } else if (isset($_GET["action"]) && strcasecmp($_GET["action"], "activation") == 0) {
             include('Validation.php');
         } else {
@@ -607,11 +702,8 @@ class Easy2Map {
         }
     }
 
-    /** Validation fucntion */
     private static function easy2MapCodeValidator($code) {
 
-        //if (strlen($code) == "") $code = get_option('phe_171323_transient_17666766');
-        //code validator
         $validation = true;
         $string = substr($code, 32, -32);
         $pie_1 = substr($code, 0, 32);
@@ -648,9 +740,6 @@ class Easy2Map {
     public static function easy2map_admin_validation() {
         include('Validation.php');
     }
-
-    //PART 2 - END
-    //PART 3 - START
 
     /**
      * * _is_searchable_page * 
@@ -756,7 +845,43 @@ class Easy2Map {
             </style><input type="hidden" id="easy2map_ajax_url_' . $sanitized_args['id'] . '" value="' . admin_url("admin-ajax.php") . '">' . $mapHTML;
     }
 
-    //PART 3 - END
+    public static function getLocation($address){
+
+        try{
+
+            $url = self::$url.urlencode($address);
+            
+            $resp_json = self::curl_file_get_contents($url);
+            $resp = json_decode($resp_json, true);
+
+            if($resp['status']='OK'){
+               return $resp['results'][0]['geometry']['location'];
+            }else{
+                return false;
+            }
+
+        } catch(Exception $e){
+            return false;
+        }
+    }
+
+
+    private static function curl_file_get_contents($URL){
+
+        try{
+
+            $c = curl_init();
+            curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($c, CURLOPT_URL, $URL);
+            $contents = curl_exec($c);
+            curl_close($c);
+
+        if ($contents) return $contents;
+            else return FALSE;
+        } catch(Exception $e){
+            return FALSE;
+        }
+    }
 }
 
 ?>

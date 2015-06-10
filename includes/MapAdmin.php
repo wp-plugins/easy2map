@@ -57,7 +57,7 @@ include('CSSEditHTML.html');
 $mapID = filter_input(INPUT_GET, 'map_id');
 ?>
 <script>
-    var $overlay, $styleElementIndex, $styleSelectedElement, $geocoder, $map, $mapSettings, $latlng, $arrTemplates, $mapPinID, $pinsArray = [], $markersArray = [], $selectedPin;
+    var $overlay, $styleElementIndex, $styleSelectedElement, $geocoder, $map, $mapSettings, $latlng, $arrTemplates, $arrThemes, $mapPinID, $pinsArray = [], $markersArray = [], $selectedPin;
     var $pluginsURL = "<?php echo str_replace('index.php', '', easy2map_get_plugin_url('/index.php')); ?>";
     var $mapID = <?php echo $mapID; ?>;
 
@@ -126,7 +126,7 @@ $mapID = filter_input(INPUT_GET, 'map_id');
     <tr>
       <td style="width:34%;vertical-align:top;"><h3>
         <span style="cursor:pointer;" onclick="showMapNameEdit()" id="mapName2"></span> <a id="mapEditPencil" href="#" style="display:none" onclick="showMapNameEdit()" class="smallE2MLink">edit</a> 
-        <!---<i id="mapEditPencil" style="cursor:pointer;margin-top:8px;" onclick="showMapNameEdit()" class="icon-pencil"></i>--->
+        <!--<i id="mapEditPencil" style="cursor:pointer;margin-top:8px;" onclick="showMapNameEdit()" class="icon-pencil"></i>-->
         
         <input maxlength="128" name="mapName" onblur="saveMapNameEdit()"
                            onkeypress="return runMapNameEdit(event)"
@@ -134,11 +134,11 @@ $mapID = filter_input(INPUT_GET, 'map_id');
                            type="text" placeholder="Give your map a name" 
                            class="input-large" style="display:none;width:300px;margin-bottom:-6px" />
         
-        <!---<?php if (!isset($_REQUEST["no_back"])) { ?>
+        <!--<?php if (!isset($_REQUEST["no_back"])) { ?>
                                                                     <button onclick="window.location='?page=easy2map&action=viewMaps'" type="button" 
                                                                             style="margin-left:30px;width:100px;" 
                                                                             class="btn">Back</button> 
-                    <?php } ?>---></td>
+                    <?php } ?>--></td>
       <td style="width:1%"></td>
       <td align="center" id="TitleMapSize" style="text-align:center;width:65%;font-size:15px;"><select id="mapSize" onchange="easy2map_map_functions.changeMapSize(jQuery(this).val())" style="width:150px">
         </select>
@@ -154,9 +154,10 @@ $mapID = filter_input(INPUT_GET, 'map_id');
                                 style="float:right;width:150px;"
                                 class="btn btn-custom">Map Completed</button>
           </p>
-          <ul class="nav nav-tabs" style="clear:both;">
+          <ul class="nav nav-tabs" style="clear:both;padding-top:1em;">
             <li class="active"> <a href="#easy2maptabs-1" data-toggle="tab">Map Markers</a> </li>
-            <li id='easy2maptab2'><a href="#easy2maptabs-2" data-toggle="tab">Additional Settings</a></li>
+            <li id='easy2maptab2'><a href="#easy2maptabs-2" data-toggle="tab">Settings</a></li>
+            <li id='easy2maptab3'><a href="#easy2maptabs-3" data-toggle="tab">Import / Export</a></li>
             
           </ul>
           <div class="tab-content">
@@ -214,6 +215,9 @@ $mapID = filter_input(INPUT_GET, 'map_id');
             <div class="tab-pane" id="easy2maptabs-2">
               <?php require_once 'SettingsEdit.php'; ?>
             </div>
+            <div class="tab-pane" id="easy2maptabs-3">
+              <?php require_once 'SettingsEdit2.php'; ?>
+            </div>
             
           </div>
         </div></td>
@@ -243,6 +247,7 @@ $mapID = filter_input(INPUT_GET, 'map_id');
                                         size='30' style="width:300px;vertical-align:middle;"
                                         acceptedFileList='JPG;JPEG;PJPEG;GIF;PNG;X-PNG'
                                         accept='image/*'>
+        <a style="float:right" href="javascript:easy2map_mappin_functions.togglePinNameShow()">Show icon names</a>
       </h5>
       <h6><i>Valid image files accepted (.jpg, .png, .gif) with a maximum file size of 5MB.</i></h6>
       <table style="width:96%" 
@@ -279,6 +284,11 @@ $mapID = filter_input(INPUT_GET, 'map_id');
 <form name="formImport3" 
       id="formImport3"
       action="?page=easy2map&action=mapimportcsv&map_id=<?php echo $mapID; ?>"
+      method="post">
+</form>
+<form name="formImport4" 
+      id="formImport4"
+      action="?page=easy2map&action=mapimportcsv2&map_id=<?php echo $mapID; ?>"
       method="post">
 </form>
 <div id="mapShortCode" style="width:700px" 

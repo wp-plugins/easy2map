@@ -88,6 +88,7 @@ if (!function_exists('easy2map_add_actions')):
         add_action('wp_ajax_save_default_pin_image', 'Easy2Map_AJAXFunctions::Save_default_pin_image_callback');
         add_action('wp_ajax_retrieve_map_settings', 'Easy2Map_AJAXFunctions::Retrieve_map_settings_callback');
         add_action('wp_ajax_retrieve_map_templates', 'Easy2Map_AJAXFunctions::Retrieve_map_templates_callback');
+        add_action('wp_ajax_retrieve_map_themes', 'Easy2Map_AJAXFunctions::Retrieve_map_themes_callback');
         add_action('wp_ajax_retrieve_mappin_templates', 'Easy2Map_AJAXFunctions::Retrieve_mappin_templates_callback');
         add_action('wp_ajax_save_map_polylines', 'Easy2Map_AJAXFunctions::Save_map_polylines_callback');
         add_action('wp_ajax_save_map', 'Easy2Map_AJAXFunctions::Save_map');
@@ -101,6 +102,7 @@ if (!function_exists('easy2map_add_actions')):
         add_action('wp_ajax_nopriv_save_default_pin_image', 'Easy2Map_AJAXFunctions::Save_default_pin_image_callback');
         add_action('wp_ajax_nopriv_retrieve_map_settings', 'Easy2Map_AJAXFunctions::Retrieve_map_settings_callback');
         add_action('wp_ajax_nopriv_retrieve_map_templates', 'Easy2Map_AJAXFunctions::Retrieve_map_templates_callback');
+        add_action('wp_ajax_nopriv_retrieve_map_themes', 'Easy2Map_AJAXFunctions::Retrieve_map_themes_callback');
         add_action('wp_ajax_nopriv_retrieve_mappin_templates', 'Easy2Map_AJAXFunctions::Retrieve_mappin_templates_callback');
         add_action('wp_ajax_nopriv_save_map_polylines', 'Easy2Map_AJAXFunctions::Save_map_polylines_callback');
         add_action('wp_ajax_nopriv_save_map', 'Easy2Map_AJAXFunctions::Save_map');
