@@ -199,7 +199,7 @@ var easy2map_map_functions = (function() {
 
         var $styles = [];
         for (var t = 0; t < $arrThemes.length; t++) {
-            
+
             if($mapTheme == parseInt($arrThemes[t].ID)){
                 if ($arrThemes[t].Styles != null && $arrThemes[t].Styles.length > 0){
                     $styles = jQuery.parseJSON($arrThemes[t].Styles);
@@ -277,7 +277,7 @@ var easy2map_map_functions = (function() {
             }
         });
 
-    };
+};
 
     //retrieve all map themes from the database
     retrieveMapThemes = function(mapID, themeID, templateID) {
@@ -312,9 +312,9 @@ var easy2map_map_functions = (function() {
             }
         });
 
-    };
+};
 
-    return {
+return {
         //Change a single CSS value
         changeElementValue: function(i, element, proVersion) {
 
@@ -359,25 +359,25 @@ var easy2map_map_functions = (function() {
             switch (attribute) {
 
                 case "border_style":
-                    {
-                        jQuery('#tdheading_style').html("Border Style");
-                        jQuery('#div_edit_style').modal();
-                        jQuery('#txtDefaultValue_style').val(value).focus();
-                        break;
-                    }
+                {
+                    jQuery('#tdheading_style').html("Border Style");
+                    jQuery('#div_edit_style').modal();
+                    jQuery('#txtDefaultValue_style').val(value).focus();
+                    break;
+                }
 
                 case "font_family":
-                    {
-                        jQuery('#tdheading_fontfamily').html("Font Family");
-                        jQuery('#div_edit_fontfamily').modal();
-                        jQuery('#txtDefaultValue_fontfamily').val(value).focus();
-                        break;
-                    }
+                {
+                    jQuery('#tdheading_fontfamily').html("Font Family");
+                    jQuery('#div_edit_fontfamily').modal();
+                    jQuery('#txtDefaultValue_fontfamily').val(value).focus();
+                    break;
+                }
 
                 case "border_width":
-                    {
+                {
 
-                        jQuery('#tdheading_pixel').html("Border Width");
+                    jQuery('#tdheading_pixel').html("Border Width");
                         //jQuery('#txtDefaultValue_pixel').find('option').remove();
                         //for (var i = parseInt(0); i <= parseInt(50); i++)
                         //    jQuery('#txtDefaultValue_pixel').append('<option value="' + i + '">' + i + '</option>');
@@ -387,7 +387,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "font_size":
+                    case "font_size":
                     {
                         jQuery('#tdheading_pixel').html("Font Size");
                         //jQuery('#txtDefaultValue_pixel').find('option').remove();
@@ -399,7 +399,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "padding":
+                    case "padding":
                     {
                         jQuery('#tdheading_pixel').html("Padding");
                         //jQuery('#txtDefaultValue_pixel').find('option').remove();
@@ -411,7 +411,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "text_align":
+                    case "text_align":
                     {
                         jQuery('#tdheading_textalign').html("Text Align");
                         jQuery('#div_edit_textalign').modal();
@@ -419,7 +419,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "width":
+                    case "width":
                     {
 
                         if (value.indexOf("%") !== -1) {
@@ -445,7 +445,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "height":
+                    case "height":
                     {
 
                         jQuery('#tdheading_pixel').html("Height");
@@ -458,7 +458,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "max_height":
+                    case "max_height":
                     {
 
                         jQuery('#tdheading_pixel').html("Minimum Height");
@@ -471,7 +471,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "margin_bottom":
+                    case "margin_bottom":
                     {
 
                         jQuery('#tdheading_margin').html("Bottom Margin");
@@ -484,7 +484,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "margin_top":
+                    case "margin_top":
                     {
 
                         jQuery('#tdheading_margin').html("Top Margin");
@@ -497,7 +497,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "margin_left":
+                    case "margin_left":
                     {
 
                         jQuery('#tdheading_margin').html("Left Margin");
@@ -510,7 +510,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "margin_right":
+                    case "margin_right":
                     {
 
                         jQuery('#tdheading_margin').html("Right Margin");
@@ -523,7 +523,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "border_radius":
+                    case "border_radius":
                     {
 
                         jQuery('#tdheading_pixel').html("Border Radius");
@@ -536,7 +536,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "border_color":
+                    case "border_color":
                     {
                         jQuery('#tdheading_color').html("Border Color");
                         jQuery('#div_edit_color').modal();
@@ -547,7 +547,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "background_color":
+                    case "background_color":
                     {
                         jQuery('#tdheading_color').html("Background Color");
                         jQuery('#div_edit_color').modal();
@@ -558,7 +558,7 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "color":
+                    case "color":
                     {
                         jQuery('#tdheading_color').html("Color");
                         jQuery('#div_edit_color').modal();
@@ -569,9 +569,9 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-            }
+                }
 
-        },
+            },
         //change a map's template
         changeMapTemplate: function() {
 
@@ -773,6 +773,11 @@ var easy2map_map_functions = (function() {
                     jQuery('#directionsInPopups').prop("checked", parseInt(settings.showDirections) === 1 ? true : false);
                     jQuery('#directionsLinkTitle').val(!!settings.directionsLinkTitle ? settings.directionsLinkTitle : "Get Directions");
                     jQuery('#directionsLinkFontSize').val(parseInt(settings.directionsLinkFontSize) > 0 ? settings.directionsLinkFontSize : 1);
+                    if (typeof settings.descriptionInListItems == "undefined"){
+                        jQuery('#descriptionInListItems').prop("checked", true);
+                    } else {
+                        jQuery('#descriptionInListItems').prop("checked", parseInt(settings.descriptionInListItems) === 1 ? true : false);
+                    }
 
                     jQuery('#mapEditPencil').show();
                     if ($mapSettings.ThemeID == null) $mapSettings.ThemeID = 1;
@@ -784,7 +789,7 @@ var easy2map_map_functions = (function() {
                 }
             });
 
-        },
+},
         //save the CSS element that has been edited
         saveItemValue: function() {
 
@@ -800,50 +805,50 @@ var easy2map_map_functions = (function() {
             var alteredValue = '';
             switch (attribute) {
                 case "border_style":
-                    {
-                        alteredValue = jQuery('#txtDefaultValue_style').val();
-                        jQuery('#div_edit_style').hide();
-                        break;
-                    }
+                {
+                    alteredValue = jQuery('#txtDefaultValue_style').val();
+                    jQuery('#div_edit_style').hide();
+                    break;
+                }
                 case "font_family":
-                    {
-                        alteredValue = jQuery('#txtDefaultValue_fontfamily').val();
-                        jQuery('#div_edit_fontfamily').hide();
-                        break;
-                    }
+                {
+                    alteredValue = jQuery('#txtDefaultValue_fontfamily').val();
+                    jQuery('#div_edit_fontfamily').hide();
+                    break;
+                }
 
                 case "font_size":
-                    {
-                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
-                        jQuery('#div_edit_em').hide();
-                        break;
+                {
+                    alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
+                    jQuery('#div_edit_em').hide();
+                    break;
 
-                    }
+                }
 
                 case "padding":
-                    {
-                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
-                        jQuery('#div_edit_em').hide();
-                        break;
-                    }
+                {
+                    alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
+                    jQuery('#div_edit_em').hide();
+                    break;
+                }
 
                 case "text_align":
-                    {
-                        alteredValue = jQuery('#txtDefaultValue_textalign').val();
-                        jQuery('#div_edit_textalign').hide();
-                        break;
-                    }
+                {
+                    alteredValue = jQuery('#txtDefaultValue_textalign').val();
+                    jQuery('#div_edit_textalign').hide();
+                    break;
+                }
 
                 case "border_width":
-                    {
-                        alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
-                        jQuery('#div_edit_pixel').hide();
-                        break;
-                    }
+                {
+                    alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
+                    jQuery('#div_edit_pixel').hide();
+                    break;
+                }
                 case "width":
-                    {
+                {
 
-                        if (jQuery('#styleElement' + $styleElementIndex).attr('value').indexOf("%") !== -1) {
+                    if (jQuery('#styleElement' + $styleElementIndex).attr('value').indexOf("%") !== -1) {
                             //percentage-based width
                             alteredValue = jQuery('#txtDefaultValue_percentage').val() + "%";
                             jQuery('#div_edit_percentage').hide();
@@ -856,19 +861,19 @@ var easy2map_map_functions = (function() {
                         }
                         break;
                     }
-                case "height":
+                    case "height":
                     {
                         alteredValue = jQuery('#txtDefaultValue_pixel').val() + "px";
                         jQuery('#div_edit_pixel').hide();
                         break;
                     }
-                case "max_height":
+                    case "max_height":
                     {
                         alteredValue = jQuery('#txtDefaultValue_pixel').val() + "px";
                         jQuery('#div_edit_pixel').hide();
                         break;
                     }
-                case "margin_top":
+                    case "margin_top":
                     {
                         alteredValue = jQuery('#txtDefaultValue_margin').val();
                         if (alteredValue != "auto")
@@ -876,7 +881,7 @@ var easy2map_map_functions = (function() {
                         jQuery('#div_edit_margin').hide();
                         break;
                     }
-                case "margin_bottom":
+                    case "margin_bottom":
                     {
                         alteredValue = jQuery('#txtDefaultValue_margin').val();
                         if (alteredValue != "auto")
@@ -884,7 +889,7 @@ var easy2map_map_functions = (function() {
                         jQuery('#div_edit_margin').hide();
                         break;
                     }
-                case "margin_left":
+                    case "margin_left":
                     {
                         alteredValue = jQuery('#txtDefaultValue_margin').val();
                         if (alteredValue != "auto")
@@ -892,7 +897,7 @@ var easy2map_map_functions = (function() {
                         jQuery('#div_edit_margin').hide();
                         break;
                     }
-                case "margin_right":
+                    case "margin_right":
                     {
                         alteredValue = jQuery('#txtDefaultValue_margin').val();
                         if (alteredValue != "auto")
@@ -901,59 +906,59 @@ var easy2map_map_functions = (function() {
                         break;
                     }
 
-                case "border_color":
+                    case "border_color":
                     {
                         alteredValue = '#' + jQuery('#txtDefaultValue_color').val();
                         jQuery('#tdItemElementValue').css('background-Color', '#' + jQuery('#txtDefaultValue_color').val());
                         jQuery('#div_edit_color').hide();
                         break;
                     }
-                case "background_color":
+                    case "background_color":
                     {
                         alteredValue = '#' + jQuery('#txtDefaultValue_color').val();
                         jQuery('#tdItemElementValue').css('background-Color', '#' + jQuery('#txtDefaultValue_color').val());
                         jQuery('#div_edit_color').hide();
                         break;
                     }
-                case "color":
+                    case "color":
                     {
                         alteredValue = '#' + jQuery('#txtDefaultValue_color').val();
                         jQuery('#tdItemElementValue').css('color', '#' + jQuery('#txtDefaultValue_color').val());
                         jQuery('#div_edit_color').hide();
                         break;
                     }
-                case "z-index":
+                    case "z-index":
                     {
                         alteredValue = jQuery('#txtDefaultValue_pixel').val();
                         jQuery('#div_edit_pixel').hide();
                         break;
                     }
-                case "border_radius":
+                    case "border_radius":
                     {
                         alteredValue = jQuery('#txtDefaultValue_pixel').val() + jQuery('#txtDefaultValue_pixel_em').val();
                         jQuery('#div_edit_pixel').hide();
                         break;
                     }
-            }
+                }
 
-            if ($styleSelectedElement === 1) {
-                jQuery('#styleElement' + $styleElementIndex).attr('value', alteredValue);
-                jQuery('#styleElement' + $styleElementIndex).html(normaliseCSSElement(attribute) + ' (' + alteredValue + ')');
+                if ($styleSelectedElement === 1) {
+                    jQuery('#styleElement' + $styleElementIndex).attr('value', alteredValue);
+                    jQuery('#styleElement' + $styleElementIndex).html(normaliseCSSElement(attribute) + ' (' + alteredValue + ')');
 
-            }
-            else if ($styleSelectedElement === 2) {
-                jQuery('#styleList' + $styleElementIndex).attr('value', alteredValue);
-                jQuery('#styleList' + $styleElementIndex).html(normaliseCSSElement(attribute) + ' (' + alteredValue + ')');
+                }
+                else if ($styleSelectedElement === 2) {
+                    jQuery('#styleList' + $styleElementIndex).attr('value', alteredValue);
+                    jQuery('#styleList' + $styleElementIndex).html(normaliseCSSElement(attribute) + ' (' + alteredValue + ')');
 
-            }
-            else {
-                jQuery('#styleHeading' + $styleElementIndex).attr('value', alteredValue);
-                jQuery('#styleHeading' + $styleElementIndex).html(normaliseCSSElement(attribute) + ' (' + alteredValue + ')');
+                }
+                else {
+                    jQuery('#styleHeading' + $styleElementIndex).attr('value', alteredValue);
+                    jQuery('#styleHeading' + $styleElementIndex).html(normaliseCSSElement(attribute) + ' (' + alteredValue + ')');
 
-            }
+                }
 
-            refreshExampleMap(true);
-        },
+                refreshExampleMap(true);
+            },
         //save the map to the database
         saveMap: function(redirect, showMapID) {
 
@@ -970,6 +975,8 @@ var easy2map_map_functions = (function() {
             var $showDirections = jQuery('#directionsInPopups').prop("checked") ? "1" : "0";
             var $directionsLinkTitle = encodeURIComponent(jQuery('#directionsLinkTitle').val());
             var $directionsLinkFontSize = jQuery('#directionsLinkFontSize').val();
+
+            var $descriptionInListItems = jQuery('#descriptionInListItems').prop("checked") ? "1" : "0";
 
             if ($map != null) {
                 $lat = $map.getCenter().lat();
@@ -993,7 +1000,7 @@ var easy2map_map_functions = (function() {
             var $mapTheme = parseInt(jQuery('#MapThemeName').val());
             var $styles = [];
             for (var t = 0; t < $arrThemes.length; t++) {
-                
+
                 if($mapTheme == parseInt($arrThemes[t].ID)){
                     if ($arrThemes[t].Styles != null && $arrThemes[t].Styles.length > 0){
                         $styles = jQuery.parseJSON($arrThemes[t].Styles);
@@ -1039,7 +1046,8 @@ var easy2map_map_functions = (function() {
                 maxWidthPopups: $maxWidthPopups,
                 showDirections: $showDirections,
                 directionsLinkTitle: $directionsLinkTitle,
-                directionsLinkFontSize: $directionsLinkFontSize
+                directionsLinkFontSize: $directionsLinkFontSize,
+                descriptionInListItems : $descriptionInListItems
             };
             var options = {
                 formatOutput: true,
@@ -1097,7 +1105,7 @@ var easy2map_map_functions = (function() {
                     alert(errorThrown);
                 }
             });
-        },
+},
         //save the map to the database
         saveMapName: function() {
 
@@ -1142,9 +1150,9 @@ var easy2map_map_functions = (function() {
             if (parseInt($mapID) === 0) {
 
                 jQuery.when(easy2map_map_functions.saveMap(false, false)).then(
-                        function(data, textStatus, jqXHR) {
-                            window.location = '?page=easy2map&action=mapimportcsv&map_id=' + $mapID;
-                        });
+                    function(data, textStatus, jqXHR) {
+                        window.location = '?page=easy2map&action=mapimportcsv&map_id=' + $mapID;
+                    });
             } else {
                 window.location = '?page=easy2map&action=mapimportcsv&map_id=' + $mapID;
             }
@@ -1155,9 +1163,9 @@ var easy2map_map_functions = (function() {
             if (parseInt($mapID) === 0) {
 
                 jQuery.when(easy2map_map_functions.saveMap(false, false)).then(
-                        function(data, textStatus, jqXHR) {
-                            window.location = '?page=easy2map&action=mapimportcsv2&map_id=' + $mapID;
-                        });
+                    function(data, textStatus, jqXHR) {
+                        window.location = '?page=easy2map&action=mapimportcsv2&map_id=' + $mapID;
+                    });
             } else {
                 window.location = '?page=easy2map&action=mapimportcsv2&map_id=' + $mapID;
             }

@@ -1,7 +1,7 @@
 <?php
 include 'ImageFunctions.php';
 
-$imagesDirectory = WP_CONTENT_DIR . "/uploads/easy2map/images/map_pins/uploaded/" . $_GET["map_id"] . "/";
+$imagesDirectory = WP_CONTENT_DIR . "/uploads/easy2map/images/map_pins/uploaded/" . intval($_GET["map_id"]) . "/";
 echo $imagesDirectory;
 $imagePlusLocation = "";
 $errorMessage = "";

@@ -111,8 +111,8 @@ class Easy2Map_MapFunctions {
 
             $settings = new e2mMapItem("0", "0", "", 
                     str_replace('index.php', '', easy2map_get_plugin_url('/index.php')) . "images/map_pins/pins/111.png"
-                    , '<settings lattitude="9.51119363015591" longitude="15.191190643725605" zoom="2" clusterpins="1" mapType="ROADMAP" width="800" height="600" backgroundColor="B52932" draggable="1" scrollWheel="1" mapTypeControl="1" mapTypeControl_style="DROPDOWN_MENU" mapTypeControl_position="TOP_RIGHT" panControl="1" panControl_position="TOP_LEFT" rotateControl="1" rotateControl_position="TOP_LEFT" scaleControl="1" scaleControl_position="TOP_LEFT" streetViewControl="1" streetViewControl_position="TOP_LEFT" zoomControl="1" zoomControl_position="TOP_LEFT" zoomControl_style="LARGE" polyline_strokecolor="000000" polyline_opacity="1.0" polyline_strokeweight="1" showMarkerTitle="0" markerNameFontSize="1.2" setMaxWidthPopups="0" maxWidthPopups="250" showDirections="0" directionsLinkTitle="Get Directions" directionsLinkFontSize="1" />', 
-                    '', '', '', '');
+                    , '<settings lattitude="9.51119363015591" longitude="15.191190643725605" zoom="2" clusterpins="1" mapType="ROADMAP" width="800" height="600" backgroundColor="B52932" draggable="1" scrollWheel="1" mapTypeControl="1" mapTypeControl_style="DROPDOWN_MENU" mapTypeControl_position="TOP_RIGHT" panControl="1" panControl_position="TOP_LEFT" rotateControl="1" rotateControl_position="TOP_LEFT" scaleControl="1" scaleControl_position="TOP_LEFT" streetViewControl="1" streetViewControl_position="TOP_LEFT" zoomControl="1" zoomControl_position="TOP_LEFT" zoomControl_style="LARGE" polyline_strokecolor="000000" polyline_opacity="1.0" polyline_strokeweight="1" showMarkerTitle="0" markerNameFontSize="1.2" setMaxWidthPopups="0" maxWidthPopups="250" showDirections="0" directionsLinkTitle="Get Directions" directionsLinkFontSize="1" descriptionInListItems="1" />', 
+                    '', '', '', '', '', '');
 
             return $settings;
         }
@@ -125,7 +125,10 @@ class Easy2Map_MapFunctions {
 
         foreach ($mapSettings as $row) {
 
-            $settings = new e2mMapItem($row->ID, $row->TemplateID, $row->MapName, $row->DefaultPinImage, $row->Settings, $row->CSSValues, $row->CSSValuesList, $row->CSSValuesHeading, $row->PolyLines, $row->ThemeID, $row->Styles);
+            $settings = new e2mMapItem($row->ID, $row->TemplateID, $row->MapName, 
+                $row->DefaultPinImage, $row->Settings, $row->CSSValues, 
+                $row->CSSValuesList, $row->CSSValuesHeading, $row->PolyLines, 
+                $row->ThemeID, $row->Styles);
 
             return $settings;
         }
@@ -160,7 +163,7 @@ class Easy2Map_MapFunctions {
         if (intval($mapID) != 0) {
 
             //this is a map update
-            $wpdb->query(sprintf("
+            $wpdb->query($wpdb->prepare("
                 UPDATE $mapsTable
                 SET TemplateID = '%s',
                     MapName = '%s',
@@ -175,17 +178,17 @@ class Easy2Map_MapFunctions {
                 WHERE ID = %s;", 
                     $Items['mapTemplateName'], 
                     $Items['mapName'], 
-                    urldecode($Items['mapSettingsXML']), 
-                    urldecode($Items["mapCSSXML"]), 
-                    urldecode($Items["listCSSXML"]), 
-                    urldecode($Items["headingCSSXML"]), 
-                    urldecode($Items["mapHTML"]), 
+                    stripcslashes(urldecode($Items['mapSettingsXML'])), 
+                    stripcslashes(urldecode($Items["mapCSSXML"])), 
+                    stripcslashes(urldecode($Items["listCSSXML"])), 
+                    stripcslashes(urldecode($Items["headingCSSXML"])), 
+                    stripcslashes(urldecode($Items["mapHTML"])), 
                     $Items['mapThemeName'], 
                     $mapID));
         } else {
 
             //this is a map insert
-            if (!$wpdb->query(sprintf("
+            if (!$wpdb->query($wpdb->prepare("
             INSERT INTO $mapsTable(
                 TemplateID,
                 MapName,
@@ -202,12 +205,13 @@ class Easy2Map_MapFunctions {
             ) VALUES ('%s', '%s', '%s', '%s', 
                     CURRENT_TIMESTAMP, '%s', '%s', '%s', '%s', '%s', 0, '%s');", 
                     $Items['mapTemplateName'], 
-                    $Items['mapName'], str_replace('index.php', '', easy2map_get_plugin_url('/index.php')) . "images/map_pins/pins/111.png", 
-                    urldecode($Items['mapSettingsXML']), '', 
-                    urldecode($Items["mapCSSXML"]), 
-                    urldecode($Items["listCSSXML"]), 
-                    urldecode($Items["headingCSSXML"]), 
-                    urldecode($Items["mapHTML"]),
+                    $Items['mapName'], str_replace('index.php', '', 
+                    easy2map_get_plugin_url('/index.php')) . "images/map_pins/pins/111.png", 
+                    stripcslashes(urldecode($Items['mapSettingsXML'])), '', 
+                    stripcslashes(urldecode($Items["mapCSSXML"])), 
+                    stripcslashes(urldecode($Items["listCSSXML"])), 
+                    stripcslashes(urldecode($Items["headingCSSXML"])), 
+                    stripcslashes(urldecode($Items["mapHTML"])),
                     $Items['mapThemeName']))) {
                 die("Error!");
             }
@@ -541,7 +545,8 @@ class e2mMapItem {
     public $ThemeID;
     public $Styles;
 
-    public function __construct($ID, $TemplateID, $MapName, $DefaultPinImage, $Settings, $CSSValues, $CSSValuesList, $CSSValuesHeading, $PolyLines, $ThemeID, $Styles) {
+    public function __construct($ID, $TemplateID, $MapName, $DefaultPinImage, $Settings, $CSSValues, $CSSValuesList, 
+        $CSSValuesHeading, $PolyLines, $ThemeID, $Styles) {
         $this->ID = $ID;
         $this->TemplateID = $TemplateID;
         $this->MapName = $MapName;

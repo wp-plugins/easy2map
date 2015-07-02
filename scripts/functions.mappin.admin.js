@@ -491,6 +491,7 @@ var easy2map_mappin_functions = (function() {
                         }
                         jQuery('#ulEasy2MapPinList').find('li').remove();
                         jQuery('#divAddressSearch').show();
+                        var descriptionInListItems = jQuery('#descriptionInListItems').prop("checked") ? true : false;
 
                         var noPinsFound = false;
 
@@ -627,8 +628,12 @@ var easy2map_mappin_functions = (function() {
                                 tblPinList.appendChild(tr2);
                                 tr2.appendChild(imageTd2);
                                 tr2.appendChild(nameTd2);
-                                tblPinList.appendChild(tr3);
-                                tr3.appendChild(descriptionTd);
+
+                                if (descriptionInListItems){
+                                    tblPinList.appendChild(tr3);
+                                    tr3.appendChild(descriptionTd);
+                                }
+
                                 tblPinList.appendChild(tr4);
                                 tr4.appendChild(emptyTd);
 
@@ -714,15 +719,21 @@ var easy2map_mappin_functions = (function() {
                                         tr2.appendChild(imageTd2);
                                         tr2.appendChild(nameTd2);
                                         tblPinList.appendChild(tr3);
-                                        tr3.appendChild(descriptionTd);
-                                        tblPinList.appendChild(tr4);
+
+                                        if (descriptionInListItems){
+                                            tr3.appendChild(descriptionTd);
+                                            tblPinList.appendChild(tr4);
+                                        }
+
                                         tr4.appendChild(emptyTd);
 
                                     } else {
 
                                         tr2.appendChild(imageTd2);
                                         tr2.appendChild(nameTd2);
-                                        tr3.appendChild(descriptionTd);
+                                        if (descriptionInListItems){
+                                            tr3.appendChild(descriptionTd);
+                                        }
                                         tr4.appendChild(emptyTd);
                                     }
                                 }
@@ -782,8 +793,10 @@ var easy2map_mappin_functions = (function() {
                                 tbl.appendChild(tr2);
                                 tr2.appendChild(imageTd2);
                                 tr2.appendChild(nameTd2);
-                                tbl.appendChild(tr3);
-                                tr3.appendChild(descriptionTd);
+                                if (descriptionInListItems){
+                                    tbl.appendChild(tr3);
+                                    tr3.appendChild(descriptionTd);
+                                }
 
                                 li.appendChild(tbl);
                                 ulPinList.appendChild(li);
