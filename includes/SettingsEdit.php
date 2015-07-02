@@ -59,10 +59,10 @@ echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;
             echo ' />&nbsp;&nbsp;Display <span style="font-size:1.2em"> marker\'s name </span> in popup windows
         </h6>    
         <h6>Font size:
-           <select onclick="easy2map_map_functions.changeMarkerPopups()" 
-           id="markerNameFontSize" name="markerNameFontSize" 
-           style="font-size:12px;width:80px"';
-           if ($premiumYN === false) {
+         <select onclick="easy2map_map_functions.changeMarkerPopups()" 
+         id="markerNameFontSize" name="markerNameFontSize" 
+         style="font-size:12px;width:80px"';
+         if ($premiumYN === false) {
             echo ' disabled="disabled"';
         }
         echo '>';
@@ -77,10 +77,10 @@ echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;
         }
         echo ' />&nbsp;&nbsp;Set maximum width of popup windows</h6>
         <h6>Max width:     
-           <select onclick="easy2map_map_functions.changeMarkerPopups()"
-           id="maxWidthPopups" name="maxWidthPopups" 
-           style="font-size:12px;width:80px"';
-           if ($premiumYN === false) {
+         <select onclick="easy2map_map_functions.changeMarkerPopups()"
+         id="maxWidthPopups" name="maxWidthPopups" 
+         style="font-size:12px;width:80px"';
+         if ($premiumYN === false) {
             echo ' disabled="disabled"';
         }
         echo '>';
@@ -109,10 +109,10 @@ echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;
 
             <h6 style="margin-top:12px;">Font size:
 
-               <select onclick="easy2map_map_functions.changeMarkerPopups()"
-               id="directionsLinkFontSize" name="directionsLinkFontSize" 
-               style="font-size:12px;width:60px"';
-               if ($premiumYN === false) {
+             <select onclick="easy2map_map_functions.changeMarkerPopups()"
+             id="directionsLinkFontSize" name="directionsLinkFontSize" 
+             style="font-size:12px;width:60px"';
+             if ($premiumYN === false) {
                 echo ' disabled="disabled"';
             }
             echo '>';
@@ -123,4 +123,16 @@ echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;
             echo '</select> em</h6>
         </div>
     </div>';
+
+
+//-----------------
+    echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;">Misc</h5>'
+    . '<h6><input type="checkbox" onclick="easy2map_map_functions.changeMarkerPopups()" 
+    id="descriptionInListItems" name="descriptionInListItems"';
+    if ($premiumYN === false) {
+        echo ' disabled="disabled"';
+    }
+    echo ' />&nbsp;&nbsp;Display <span style="font-size:1.2em">pin description</span> in pin-list '
+    . '<p style="font-size:0.9em;text-decoration:italic;">(only applicable in templates containing list of pins).</p></h6>';
+
     ?>
