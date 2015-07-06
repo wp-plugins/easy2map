@@ -5,7 +5,7 @@ Tags: google maps, store finder, online maps, store locater, google, dealer loca
 
 Requires at least: 3.0.1
 Tested up to: 4.2.2
-Stable tag: 1.2.5
+Stable tag: 1.2.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,6 +127,14 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 * Map styling functionality added (Ultimate Version).
 * Ability to import map markers from CSV file using addresses (previously only supported latitude and longitude) (Ultimate Version).
 
+= 1.2.5 =
+* WordPress version 4.2.2 compatability.
+* SQL injection vulnerability fixed.
+*  Ability to show/hide pin description in list alongside map (Ultimate Version).
+
+= 1.2.6 =
+* SQL injection vulnerability fixed.
+
 == Upgrade Notice ==
 
 = 1.0.1 =
@@ -175,3 +183,5 @@ When adding a new marker (or editing an existing marker), click on the 'Change I
 * SQL injection vulnerability fixed.
 *  Ability to show/hide pin description in list alongside map (Ultimate Version).
 
+= 1.2.6 =
+* SQL injection vulnerability fixed.
