@@ -87,7 +87,7 @@ class Easy2Map_MapFunctions {
         global $wpdb;
         $mapsTable = $wpdb->prefix . "easy2map_maps";
 
-        $wpdb->query(sprintf("UPDATE $mapsTable
+        $wpdb->query($wpdb->prepare("UPDATE $mapsTable
         SET PolyLines = '%s'
         WHERE ID = '%s';", $PolyLines, $mapID));
 
@@ -268,7 +268,7 @@ class Easy2Map_MapFunctions {
         global $wpdb;
         $mapsTable = $wpdb->prefix . "easy2map_maps";
 
-        $wpdb->query(sprintf("
+        $wpdb->query($wpdb->prepare("
             UPDATE $mapsTable
             SET MapName = '%s',
             LastInvoked = CURRENT_TIMESTAMP,

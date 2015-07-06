@@ -6,7 +6,7 @@ class Easy2Map {
     const plugin_name = 'Easy2Map';
     const min_php_version = '5.0';
     const min_wp_version = '3.0';
-    const e2m_version = '1.2.5';
+    const e2m_version = '1.2.6';
 
     // Used to uniquely identify this plugin's menu page in the WP manager
     const admin_menu_slug = 'easy2map';
