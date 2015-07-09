@@ -492,6 +492,8 @@ var easy2map_mappin_functions = (function() {
                         jQuery('#ulEasy2MapPinList').find('li').remove();
                         jQuery('#divAddressSearch').show();
                         var descriptionInListItems = jQuery('#descriptionInListItems').prop("checked") ? true : false;
+                        var allowMapZoom = jQuery('#allowMapZoom').prop("checked") ? true : false;
+
 
                         var noPinsFound = false;
 

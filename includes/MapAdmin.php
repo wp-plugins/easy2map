@@ -116,13 +116,13 @@ $mapID = filter_input(INPUT_GET, 'map_id');
 
 </script>
 
-<div class="wrap" id="bodyTag">
+<div class="wrap" id="bodyTag" style="background-color:#FFFFFF;">
   <div style="margin:auto;text-align: center;max-width:200px;" class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
     <div style="text-align:center;color:#404040;">
       <h5>Processing...</h5>
     </div>
   </div>
-  <table style="width:100%;margin-bottom:10px;" cellpadding="2" cellspacing="2">
+  <table style="width:100%;margin-bottom:10px;background-color:#FFFFFF;" cellpadding="2" cellspacing="2">
     <tr>
       <td style="width:34%;vertical-align:top;"><h3>
         <span style="cursor:pointer;" onclick="showMapNameEdit()" id="mapName2"></span> <a id="mapEditPencil" href="#" style="display:none" onclick="showMapNameEdit()" class="smallE2MLink">edit</a> 
@@ -146,7 +146,7 @@ $mapID = filter_input(INPUT_GET, 'map_id');
                    style="float:right;margin-right:5px;">Back to Map Manager</a></td>
     </tr>
   </table>
-  <table style="width:100%" cellpadding="2" cellspacing="2">
+  <table style="width:100%;background-color:#FFFFFF;" cellpadding="2" cellspacing="2">
     <tr>
       <td style="width:34%;vertical-align:top;"><div class="control-group" style="width:100%;">
           <p style="display:none;margin-top:-20px;" id="SaveMap">
@@ -212,7 +212,7 @@ $mapID = filter_input(INPUT_GET, 'map_id');
               <table id="tblMapMarkers" style="display:none;width:98%;margin-top:20px;"  class="table table-striped">
               </table>
             </div>
-            <div class="tab-pane" id="easy2maptabs-2">
+            <div class="tab-pane" id="easy2maptabs-2" style="background-color:#FFFFFF;">
               <?php require_once 'SettingsEdit.php'; ?>
             </div>
             <div class="tab-pane" id="easy2maptabs-3">

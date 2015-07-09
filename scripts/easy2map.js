@@ -263,7 +263,18 @@ retrieve_map_settings = function(mapControl) {
             var $zoomControlOptions_style = mapSettings.zoomControl_style.toUpperCase();
             var $zoomControlOptions_position = mapSettings.zoomControl_position.toUpperCase();
             var $scaleControlOptions_position = mapSettings.zoomControl_position.toUpperCase();
+            var $allowMapZoom = true;
 
+            try{
+                if (typeof mapSettings.allowMapZoom != "undefined" && !!mapSettings.allowMapZoom != false){
+
+                    $allowMapZoom = parseInt(mapSettings.allowMapZoom) == 1 ? true : false;
+                }
+
+            } catch (e){
+                $allowMapZoom = true;
+            }
+          
             if ($mapType === "ROADMAP")
                 $mapType = google.maps.MapTypeId.ROADMAP;
             else if ($mapType === "HYBRID")
@@ -356,6 +367,8 @@ retrieve_map_settings = function(mapControl) {
             };
 
             map = new google.maps.Map(document.getElementById(mapControl), mapOptions);
+            map.setOptions({zoomControl: $allowMapZoom, scrollwheel: $allowMapZoom, disableDoubleClickZoom: $allowMapZoom});
+
 
             if (!!parseInt(mapSettings.trafficlayer)) {
                 var trafficLayer = new google.maps.TrafficLayer();
