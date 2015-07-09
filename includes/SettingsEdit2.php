@@ -3,7 +3,7 @@
 $premiumYN = self::easy2MapCodeValidator(get_option('easy2map-key'));
 
 if ($premiumYN === false) {
-    echo '<div style="color:#70aa00;width:90%;text-align:center;margin-bottom:5px;font-weight:bold;">Please upgrade to the Ultimate Version to edit settings</div>';
+    echo '<div style="color:#70aa00;width:90%;text-align:center;margin-bottom:5px;font-weight:bold;"><a style="color:#70aa00;" href="?page=easy2map&action=activation">Please upgrade to the Ultimate Version to edit settings</a></div>';
 }
 
 echo '<h5 style="margin-top:1em;border-top:0px solid #EBEBEB;padding-top:0.5em;">Map Export</h5>';

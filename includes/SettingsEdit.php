@@ -3,7 +3,7 @@
 $premiumYN = self::easy2MapCodeValidator(get_option('easy2map-key'));
 
 if ($premiumYN === false) {
-    echo '<div style="color:#70aa00;width:90%;text-align:center;margin-bottom:5px;font-weight:bold;">Please upgrade to the Ultimate Version to edit settings</div>';
+    echo '<div style="color:#70aa00;width:90%;text-align:center;margin-bottom:5px;font-weight:bold;"><a style="color:#70aa00;" href="?page=easy2map&action=activation">Please upgrade to the Ultimate Version to edit settings</a></div>';
 }
 
 //-----------------
@@ -41,7 +41,23 @@ echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;
 . '<ul class="nav nav-pills"><li class="active"><a href="#MapTemplateCSS" data-toggle="tab">Map</a></li><li><a href="#MapTemplateListCSS" data-toggle="tab">Markers List</a></li><li><a href="#MapTemplateHeadingCSS" data-toggle="tab">Map Heading</a></li></ul>'
 . '<div class="tab-content"><div class="tab-pane active" id="MapTemplateCSS"></div><div class="tab-pane" id="MapTemplateListCSS"></div><div class="tab-pane" id="MapTemplateHeadingCSS"></div></div>';
 
+//MAP SETTINGS
+//-----------------
+echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;">Map Settings</h5>'
+. '<h6><input type="checkbox" onclick="easy2map_map_functions.changeMarkerPopups()" 
+id="descriptionInListItems" name="descriptionInListItems"';
+if ($premiumYN === false) {
+    echo ' disabled="disabled"';
+}
+echo ' />&nbsp;&nbsp;Display <span style="font-size:1.2em">pin description</span> in pin-list '
+. '<p style="font-size:0.9em;text-decoration:italic;">(only applicable in templates containing list of pins).</p></h6>';
 
+echo '<h6><input type="checkbox" onclick="easy2map_map_functions.changeMarkerPopups()" 
+id="allowMapZoom" name="allowMapZoom"';
+if ($premiumYN === false) {
+    echo ' disabled="disabled"';
+}
+echo ' />&nbsp;&nbspAllow map zooming <p style="font-size:0.9em;text-decoration:italic;">(only true, map zoom level is static and can\'t be changed).</p></h6>';
 
 echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;">Marker Popup Settings</h5>'
 . '<ul class="nav nav-pills">
@@ -123,16 +139,5 @@ echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;
             echo '</select> em</h6>
         </div>
     </div>';
-
-
-//-----------------
-    echo '<h5 style="margin-top:20px;border-top:1px solid #EBEBEB;padding-top:0.5em;">Misc</h5>'
-    . '<h6><input type="checkbox" onclick="easy2map_map_functions.changeMarkerPopups()" 
-    id="descriptionInListItems" name="descriptionInListItems"';
-    if ($premiumYN === false) {
-        echo ' disabled="disabled"';
-    }
-    echo ' />&nbsp;&nbsp;Display <span style="font-size:1.2em">pin description</span> in pin-list '
-    . '<p style="font-size:0.9em;text-decoration:italic;">(only applicable in templates containing list of pins).</p></h6>';
 
     ?>

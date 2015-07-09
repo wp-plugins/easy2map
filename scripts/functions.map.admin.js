@@ -1,11 +1,17 @@
 var easy2map_map_functions = (function() {
 
-    displayGoogleMap = function() {
+    displayGoogleMap = function(allowMapZoom) {
 
         var settings = jQuery.xml2json($mapSettings.Settings);
         var $lat = settings.lattitude;
         var $lng = settings.longitude;
         var $zoom = parseInt(settings.zoom);
+
+        if (typeof allowMapZoom != "undefined"){
+            allowMapZoom = allowMapZoom;
+        } else {
+            allowMapZoom = true;
+        }
 
         if ($map != null) {
             $lat = $map.getCenter().lat();
@@ -16,6 +22,8 @@ var easy2map_map_functions = (function() {
         var mapOptions = retrieveMapOptions($lat, $lng, $zoom);
 
         $map = new google.maps.Map(document.getElementById("divMap"), mapOptions);
+        $map.setOptions({zoomControl: allowMapZoom, scrollwheel: allowMapZoom, disableDoubleClickZoom: allowMapZoom});
+
         $overlay = new google.maps.OverlayView();
         $overlay.draw = function() {
         };
@@ -115,8 +123,7 @@ var easy2map_map_functions = (function() {
 
         }
 
-        displayGoogleMap();
-
+        displayGoogleMap(jQuery('#allowMapZoom').prop("checked"));
         google.maps.event.addDomListener(window, 'load', easy2map_mappin_functions.retrieveMapPoints());
 
     };
@@ -779,6 +786,12 @@ return {
                         jQuery('#descriptionInListItems').prop("checked", parseInt(settings.descriptionInListItems) === 1 ? true : false);
                     }
 
+                    if (typeof settings.allowMapZoom == "undefined"){
+                        jQuery('#allowMapZoom').prop("checked", true);
+                    } else {
+                        jQuery('#allowMapZoom').prop("checked", parseInt(settings.allowMapZoom) === 1 ? true : false);
+                    }
+
                     jQuery('#mapEditPencil').show();
                     if ($mapSettings.ThemeID == null) $mapSettings.ThemeID = 1;
                     retrieveMapThemes(mapID, $mapSettings.ThemeID, $mapSettings.TemplateID);
@@ -977,6 +990,7 @@ return {
             var $directionsLinkFontSize = jQuery('#directionsLinkFontSize').val();
 
             var $descriptionInListItems = jQuery('#descriptionInListItems').prop("checked") ? "1" : "0";
+            var $allowMapZoom = jQuery('#allowMapZoom').prop("checked") ? "1" : "0";
 
             if ($map != null) {
                 $lat = $map.getCenter().lat();
@@ -1047,7 +1061,8 @@ return {
                 showDirections: $showDirections,
                 directionsLinkTitle: $directionsLinkTitle,
                 directionsLinkFontSize: $directionsLinkFontSize,
-                descriptionInListItems : $descriptionInListItems
+                descriptionInListItems : $descriptionInListItems,
+                allowMapZoom : $allowMapZoom
             };
             var options = {
                 formatOutput: true,

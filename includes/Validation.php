@@ -71,7 +71,7 @@
         if (self::easy2MapCodeValidator(get_option('easy2map-key')) === false) {
 
             echo '<tr><td colspan="2" style="text-align:center;vertical-align:middle;height:100px;">
-                    <a target="_blank" href="http://easy2map.com/payment/paypal/easy2MapPro.php" style="text-decoration:underline;font-size:1.3em;color:#70aa00;font-weight:bold;">Click Here to Upgrade to the Ultimate Version for $12.99</a>
+                    <a target="_blank" href="https://easy2map-gae-999.appspot.com/e2m-pro" style="text-decoration:underline;font-size:1.3em;color:#70aa00;font-weight:bold;">Click Here to Upgrade to the Ultimate Version for $12.99</a>
                     <img style="margin-left:30px;margin-right:auto;" src="' . easy2map_get_plugin_url('/images/paypal-verified.png') . '"></td></tr>';
         }
 
